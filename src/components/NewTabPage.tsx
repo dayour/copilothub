@@ -132,4 +132,3 @@ export function NewTabPage({ tabId }: { tabId: string }) {
   );
 }
 
-export default NewTabPage;

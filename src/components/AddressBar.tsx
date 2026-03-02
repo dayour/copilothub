@@ -155,4 +155,3 @@ export function AddressBar() {
   );
 }
 
-export default AddressBar;

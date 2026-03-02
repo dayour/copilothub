@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useAppStore, type SidecarStatus } from '../store/appStore';
 import { eventBridge } from '../lib/eventBridge';
 import mcpClient from '../lib/mcpClient';
+import { logger } from '../lib/logger';
 
 const VALID_SIDECAR_STATUSES: readonly SidecarStatus[] = ['stopped', 'starting', 'running', 'error'];
 
@@ -17,16 +18,16 @@ export function useSidecar() {
 
         // Start the sidecar via Tauri command
         const result = await eventBridge.startSidecar();
-        console.log('[CopilotHub] Sidecar started:', result);
+        logger.info('sidecar', 'Sidecar started', result);
 
         if (!mounted) return;
         setSidecarStatus('running');
 
         // Connect MCP client to the running sidecar
         await mcpClient.connect();
-        console.log('[CopilotHub] MCP client connected');
+        logger.info('sidecar', 'MCP client connected');
       } catch (err) {
-        console.warn('[CopilotHub] Sidecar startup failed (expected in dev without sidecar binary):', err);
+        logger.warn('sidecar', 'Sidecar startup failed (expected without binary)', err);
         if (mounted) setSidecarStatus('stopped');
       }
     }

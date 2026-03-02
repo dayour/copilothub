@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useAppStore } from '../store/appStore';
 import entraAuth from '../lib/entraAuth';
+import { logger } from '../lib/logger';
 
 export function useEntraAuth() {
   const setAuthenticated = useAppStore((s) => s.setAuthenticated);
@@ -11,12 +12,12 @@ export function useEntraAuth() {
       // Store auth state in app store for access by other components
       // We'll use a simple approach: just track if authenticated
       setAuthenticated(state.isAuthenticated);
-      console.log('[CopilotHub] Auth state changed:', state.isAuthenticated ? 'authenticated' : 'unauthenticated');
+      logger.info('auth', 'Auth state changed', state.isAuthenticated ? 'authenticated' : 'unauthenticated');
     });
 
     // Attempt silent login on startup (will fail gracefully if no cached token)
     entraAuth.getAccessToken().catch(() => {
-      console.log('[CopilotHub] No cached Entra token. User will need to login manually.');
+      logger.info('auth', 'No cached Entra token');
     });
 
     return unsubscribe;

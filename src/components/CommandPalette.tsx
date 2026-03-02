@@ -8,6 +8,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { useAppStore } from '../store/appStore';
 import { useTabStore } from '../store/tabStore';
+import { logger } from '../lib/logger';
 import {
   Search,
   Plus,
@@ -183,7 +184,7 @@ export function CommandPalette() {
         icon: <Play size={16} />,
         action: () => {
           invoke('start_sidecar').catch((err: unknown) => {
-            console.error('Failed to start sidecar:', err);
+            logger.error('palette', 'Failed to start sidecar', err);
           });
           close();
         },
@@ -195,7 +196,7 @@ export function CommandPalette() {
         icon: <Square size={16} />,
         action: () => {
           invoke('stop_sidecar').catch((err: unknown) => {
-            console.error('Failed to stop sidecar:', err);
+            logger.error('palette', 'Failed to stop sidecar', err);
           });
           close();
         },

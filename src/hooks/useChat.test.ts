@@ -5,7 +5,7 @@
 // and error fallback behavior.
 // ---------------------------------------------------------------------------
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useChat } from './useChat';
 import { useChatStore } from '../store/chatStore';
@@ -70,7 +70,19 @@ describe('useChat', () => {
       inputDraft: '',
       activeMention: null,
     });
-    useAppStore.setState({ sidecarStatus: 'stopped' });
+    useAppStore.setState({
+      theme: 'dark',
+      sidebarPosition: 'left',
+      verticalTabsEnabled: false,
+      sidecarStatus: 'stopped',
+      commandPaletteOpen: false,
+      copilotSidebarOpen: false,
+      isAuthenticated: false,
+    });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   // -----------------------------------------------------------------------

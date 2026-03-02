@@ -153,5 +153,3 @@ export function TerminalTab(_props: TerminalTabProps) {
   );
 }
 
-export default TerminalTab;
-

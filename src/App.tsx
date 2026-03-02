@@ -3,6 +3,7 @@
 // Assembles TitleBar, TabBar, AddressBar, and tab content area.
 // ---------------------------------------------------------------------------
 
+import { useCallback } from 'react';
 import { useTabStore } from './store/tabStore';
 import { useAppStore } from './store/appStore';
 import { TitleBar } from './components/TitleBar';
@@ -23,6 +24,15 @@ import { useChat } from './hooks/useChat';
 import { useSidecar } from './hooks/useSidecar';
 
 function BrowserTabContent({ tab }: { tab: { id: string; url: string; isActive: boolean } }) {
+  const handleIframeLoad = useCallback((e: React.SyntheticEvent<HTMLIFrameElement>) => {
+    try {
+      const title = (e.target as HTMLIFrameElement).contentDocument?.title;
+      if (title) useTabStore.getState().updateTabTitle(tab.id, title);
+    } catch {
+      // Cross-origin, can't access title
+    }
+  }, [tab.id]);
+
   // For MVP, render browser tabs as iframes.
   // Future: use Tauri multi-webview API for true WebView2 instances.
   if (!tab.url || tab.url === 'about:blank') {
@@ -47,14 +57,7 @@ function BrowserTabContent({ tab }: { tab: { id: string; url: string; isActive: 
         className="w-full h-full border-0"
         title={`Browser tab ${tab.id}`}
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"
-        onLoad={(e) => {
-          try {
-            const title = (e.target as HTMLIFrameElement).contentDocument?.title;
-            if (title) useTabStore.getState().updateTabTitle(tab.id, title);
-          } catch {
-            // Cross-origin, can't access title
-          }
-        }}
+        onLoad={handleIframeLoad}
       />
     </div>
   );

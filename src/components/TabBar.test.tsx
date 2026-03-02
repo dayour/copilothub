@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { TabBar } from './TabBar';
 import { useTabStore, type Tab } from '../store/tabStore';
@@ -49,6 +49,10 @@ describe('TabBar', () => {
       commandPaletteOpen: false,
       copilotSidebarOpen: false,
     });
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
     vi.restoreAllMocks();
   });
 

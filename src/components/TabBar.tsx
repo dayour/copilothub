@@ -1,4 +1,4 @@
-import { useState, type ComponentType } from 'react';
+import React, { useCallback, useState, type ComponentType } from 'react';
 import {
   Globe,
   MessageSquare,
@@ -9,7 +9,7 @@ import {
   X,
   type LucideProps,
 } from 'lucide-react';
-import { useTabStore, type TabType } from '../store/tabStore';
+import { useTabStore, type Tab, type TabType } from '../store/tabStore';
 import { useAppStore } from '../store/appStore';
 import TabContextMenu from './TabContextMenu';
 
@@ -36,6 +36,106 @@ function TypeIcon({ type }: { type: TabType }) {
   );
 }
 
+interface TabItemProps {
+  tab: Tab;
+  isVertical: boolean;
+  isFaviconAvailable: boolean;
+  onActivate: (id: string) => void;
+  onClose: (id: string) => void;
+  onContextMenu: (e: React.MouseEvent, id: string) => void;
+  onFaviconError: (id: string) => void;
+}
+
+const TabItem = React.memo(
+  function TabItem({
+    tab,
+    isVertical,
+    isFaviconAvailable,
+    onActivate,
+    onClose,
+    onContextMenu,
+    onFaviconError,
+  }: TabItemProps) {
+    return (
+      <button
+        key={tab.id}
+        type="button"
+        role="tab"
+        aria-selected={tab.isActive}
+        onClick={() => onActivate(tab.id)}
+        onContextMenu={(event) => onContextMenu(event, tab.id)}
+        className={
+          isVertical
+            ? `group flex h-[36px] w-full items-center gap-2 rounded-md px-2 text-left transition-colors ${
+                tab.isActive
+                  ? 'bg-[var(--color-tab-active)] text-[var(--color-text-primary)]'
+                  : 'bg-[var(--color-tab-inactive)] text-[var(--color-text-secondary)] hover:bg-[var(--color-tab-hover)] hover:text-[var(--color-text-primary)]'
+              }`
+            : `group flex h-7 shrink-0 items-center rounded-md transition-colors ${
+                tab.isPinned ? 'w-9 justify-center px-0' : 'max-w-[220px] gap-2 px-2'
+              } ${
+                tab.isActive
+                  ? 'bg-[var(--color-tab-active)] text-[var(--color-text-primary)]'
+                  : 'bg-[var(--color-tab-inactive)] text-[var(--color-text-secondary)] hover:bg-[var(--color-tab-hover)] hover:text-[var(--color-text-primary)]'
+              }`
+        }
+        title={isVertical ? undefined : tab.title}
+      >
+        <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+          {isFaviconAvailable ? (
+            <img
+              src={tab?.favicon ?? ''}
+              alt=""
+              className="h-4 w-4"
+              onError={() => onFaviconError(tab.id)}
+            />
+          ) : (
+            <TypeIcon type={tab.type} />
+          )}
+        </span>
+
+        {isVertical ? (
+          <span className="min-w-0 flex-1 truncate text-sm">{tab.title}</span>
+        ) : (
+          !tab.isPinned && <span className="max-w-[150px] truncate text-xs">{tab.title}</span>
+        )}
+
+        {!tab.isPinned && (
+          <span
+            onClick={(event) => {
+              event.stopPropagation();
+              onClose(tab.id);
+            }}
+            className={
+              isVertical
+                ? 'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--color-text-muted)] opacity-0 transition-all group-hover:opacity-100 hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]'
+                : 'inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-[var(--color-text-muted)] opacity-0 transition-all group-hover:opacity-100 hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]'
+            }
+            role="button"
+            aria-label={`Close ${tab.title}`}
+            title={isVertical ? 'Close tab' : undefined}
+          >
+            <X size={isVertical ? 14 : 12} />
+          </span>
+        )}
+      </button>
+    );
+  },
+  (prevProps, nextProps) =>
+    prevProps.isVertical === nextProps.isVertical &&
+    prevProps.isFaviconAvailable === nextProps.isFaviconAvailable &&
+    prevProps.onActivate === nextProps.onActivate &&
+    prevProps.onClose === nextProps.onClose &&
+    prevProps.onContextMenu === nextProps.onContextMenu &&
+    prevProps.onFaviconError === nextProps.onFaviconError &&
+    prevProps.tab.id === nextProps.tab.id &&
+    prevProps.tab.title === nextProps.tab.title &&
+    prevProps.tab.isActive === nextProps.tab.isActive &&
+    prevProps.tab.isPinned === nextProps.tab.isPinned &&
+    prevProps.tab.favicon === nextProps.tab.favicon &&
+    prevProps.tab.type === nextProps.tab.type,
+);
+
 export function TabBar({ vertical }: { vertical?: boolean }) {
   const tabs = useTabStore((state) => state.tabs);
   const addTab = useTabStore((state) => state.addTab);
@@ -47,13 +147,20 @@ export function TabBar({ vertical }: { vertical?: boolean }) {
   const [brokenFavicons, setBrokenFavicons] = useState<Set<string>>(new Set());
   const [contextMenu, setContextMenu] = useState<{ tabId: string; x: number; y: number } | null>(null);
 
-  const handleFaviconError = (tabId: string) => {
+  const handleFaviconError = useCallback((tabId: string) => {
     setBrokenFavicons((prev) => {
       const next = new Set(prev);
       next.add(tabId);
       return next;
     });
-  };
+  }, []);
+
+  const handleActivate = useCallback((id: string) => setActiveTab(id), [setActiveTab]);
+  const handleClose = useCallback((id: string) => closeTab(id), [closeTab]);
+  const handleContextMenu = useCallback((event: React.MouseEvent, id: string) => {
+    event.preventDefault();
+    setContextMenu({ tabId: id, x: event.clientX, y: event.clientY });
+  }, []);
 
   if (isVertical) {
     return (
@@ -73,61 +180,18 @@ export function TabBar({ vertical }: { vertical?: boolean }) {
 
         <div className="flex-1 overflow-y-auto p-2">
           <div className="flex flex-col gap-1" role="tablist">
-            {tabs.map((tab) => {
-              const isFaviconAvailable = Boolean(tab?.favicon) && !brokenFavicons.has(tab?.id ?? '');
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={tab.isActive}
-                  onClick={() => setActiveTab(tab.id)}
-                  onContextMenu={(event) => {
-                    event.preventDefault();
-                    setContextMenu({ tabId: tab.id, x: event.clientX, y: event.clientY });
-                  }}
-                  className={`group flex h-[36px] w-full items-center gap-2 rounded-md px-2 text-left transition-colors ${
-                    tab.isActive
-                      ? 'bg-[var(--color-tab-active)] text-[var(--color-text-primary)]'
-                      : 'bg-[var(--color-tab-inactive)] text-[var(--color-text-secondary)] hover:bg-[var(--color-tab-hover)] hover:text-[var(--color-text-primary)]'
-                  }`}
-                >
-                  <span className="flex h-4 w-4 shrink-0 items-center justify-center">
-                    {isFaviconAvailable ? (
-                      <img
-                        src={tab?.favicon ?? ''}
-                        alt=""
-                        className="h-4 w-4"
-                        onError={() => {
-                          if (tab?.id) {
-                            handleFaviconError(tab.id);
-                          }
-                        }}
-                      />
-                    ) : (
-                      <TypeIcon type={tab.type} />
-                    )}
-                  </span>
-
-                  <span className="min-w-0 flex-1 truncate text-sm">{tab.title}</span>
-
-                  {!tab.isPinned && (
-                    <span
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        closeTab(tab.id);
-                      }}
-                      className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--color-text-muted)] opacity-0 transition-all group-hover:opacity-100 hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]"
-                      role="button"
-                      aria-label={`Close ${tab.title}`}
-                      title="Close tab"
-                    >
-                      <X size={14} />
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+            {tabs.map((tab) => (
+              <TabItem
+                key={tab.id}
+                tab={tab}
+                isVertical={isVertical}
+                isFaviconAvailable={Boolean(tab?.favicon) && !brokenFavicons.has(tab?.id ?? '')}
+                onActivate={handleActivate}
+                onClose={handleClose}
+                onContextMenu={handleContextMenu}
+                onFaviconError={handleFaviconError}
+              />
+            ))}
           </div>
         </div>
         </aside>
@@ -146,63 +210,18 @@ export function TabBar({ vertical }: { vertical?: boolean }) {
     <>
       <div className="flex h-[36px] w-full items-center border-b border-[var(--color-border-default)] bg-[var(--color-surface-secondary)] px-1">
         <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1" role="tablist">
-          {tabs.map((tab) => {
-            const isFaviconAvailable = Boolean(tab?.favicon) && !brokenFavicons.has(tab?.id ?? '');
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={tab.isActive}
-                onClick={() => setActiveTab(tab.id)}
-                onContextMenu={(event) => {
-                  event.preventDefault();
-                  setContextMenu({ tabId: tab.id, x: event.clientX, y: event.clientY });
-                }}
-                className={`group flex h-7 shrink-0 items-center rounded-md transition-colors ${
-                  tab.isPinned ? 'w-9 justify-center px-0' : 'max-w-[220px] gap-2 px-2'
-                } ${
-                  tab.isActive
-                    ? 'bg-[var(--color-tab-active)] text-[var(--color-text-primary)]'
-                    : 'bg-[var(--color-tab-inactive)] text-[var(--color-text-secondary)] hover:bg-[var(--color-tab-hover)] hover:text-[var(--color-text-primary)]'
-                }`}
-                title={tab.title}
-              >
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center">
-                  {isFaviconAvailable ? (
-                    <img
-                      src={tab?.favicon ?? ''}
-                      alt=""
-                      className="h-4 w-4"
-                      onError={() => {
-                        if (tab?.id) {
-                          handleFaviconError(tab.id);
-                        }
-                      }}
-                    />
-                  ) : (
-                    <TypeIcon type={tab.type} />
-                  )}
-                </span>
-
-                {!tab.isPinned && <span className="max-w-[150px] truncate text-xs">{tab.title}</span>}
-
-                {!tab.isPinned && (
-                  <span
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      closeTab(tab.id);
-                    }}
-                    className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-[var(--color-text-muted)] opacity-0 transition-all group-hover:opacity-100 hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]"
-                    role="button"
-                    aria-label={`Close ${tab.title}`}
-                  >
-                    <X size={12} />
-                  </span>
-                )}
-              </button>
-            );
-          })}
+          {tabs.map((tab) => (
+            <TabItem
+              key={tab.id}
+              tab={tab}
+              isVertical={isVertical}
+              isFaviconAvailable={Boolean(tab?.favicon) && !brokenFavicons.has(tab?.id ?? '')}
+              onActivate={handleActivate}
+              onClose={handleClose}
+              onContextMenu={handleContextMenu}
+              onFaviconError={handleFaviconError}
+            />
+          ))}
         </div>
 
         <button
@@ -226,4 +245,3 @@ export function TabBar({ vertical }: { vertical?: boolean }) {
   );
 }
 
-export default TabBar;

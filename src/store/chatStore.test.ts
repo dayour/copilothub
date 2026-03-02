@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useChatStore, type ToolCall } from './chatStore';
 
 describe('chatStore', () => {
@@ -10,6 +10,10 @@ describe('chatStore', () => {
       activeMention: null,
       inputDraft: '',
     });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('initial state has no messages, chat mode, and not processing', () => {
@@ -159,5 +163,23 @@ describe('chatStore', () => {
     useChatStore.getState().completeStream(assistantMsg!.id);
     useChatStore.getState().completeStream(assistantMsg!.id);
     expect(useChatStore.getState().isProcessing).toBe(false);
+  });
+
+  it('addToolCall on nonexistent message is a no-op', () => {
+    const before = useChatStore.getState().messages.length;
+    useChatStore.getState().addToolCall('nonexistent-id', {
+      id: 'tc1',
+      name: 'test',
+      args: {},
+      result: '',
+      status: 'pending',
+    });
+    expect(useChatStore.getState().messages.length).toBe(before);
+  });
+
+  it('updateToolCall on nonexistent message is a no-op', () => {
+    useChatStore.getState().sendMessage('test');
+    useChatStore.getState().updateToolCall('nonexistent-msg', 'tc1', 'result');
+    // Should not throw
   });
 });

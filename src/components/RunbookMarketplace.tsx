@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect } from 'react';
 
-import { runbookStorage, type RunbookSummary } from '../lib/runbookStorage';
+import type { RunbookSummary } from '../lib/runbookStorage';
+import { useRunbookStore } from '../store/runbookStore';
 import type { RunbookVisibility } from '../types/runbook';
 
 type RunbookMarketplaceProps = {
@@ -9,25 +10,6 @@ type RunbookMarketplaceProps = {
   onClose?: () => void;
   onRun?: (runbook: RunbookSummary) => void;
 };
-
-const DEFAULT_RUNBOOK_TEMPLATE = `manifest:
-  name: Example Runbook
-  version: 1.0.0
-  author: CopilotHub
-  description: Describe what this runbook does.
-  tags:
-    - example
-    - automation
-  visibility: personal
-
-variables: []
-
-steps:
-  - id: step-1
-    tool: browser.navigate
-    args:
-      url: https://example.com
-`;
 
 function truncateDescription(description: string, maxLength = 140): string {
   if (description.length <= maxLength) {
@@ -54,86 +36,29 @@ export function RunbookMarketplace({
   onClose,
   onRun,
 }: RunbookMarketplaceProps) {
-  const [runbooks, setRunbooks] = useState<RunbookSummary[]>([]);
-  const [search, setSearch] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [filenameInput, setFilenameInput] = useState('new-runbook.yaml');
-  const [editorContent, setEditorContent] = useState(DEFAULT_RUNBOOK_TEMPLATE);
-  const [isSaving, setIsSaving] = useState(false);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-
-  const filteredRunbooks = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) {
-      return runbooks;
-    }
-
-    return runbooks.filter((runbook) => {
-      const haystack = [runbook.name, runbook.description, runbook.tags.join(' ')].join(' ').toLowerCase();
-      return haystack.includes(query);
-    });
-  }, [runbooks, search]);
-
-  async function loadRunbooks(): Promise<void> {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const items = await runbookStorage.listRunbooks();
-      setRunbooks(items);
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : 'Failed to load runbooks.');
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const search = useRunbookStore((s) => s.search);
+  const setSearch = useRunbookStore((s) => s.setSearch);
+  const isLoading = useRunbookStore((s) => s.isLoading);
+  const error = useRunbookStore((s) => s.error);
+  const isEditorOpen = useRunbookStore((s) => s.isEditorOpen);
+  const filenameInput = useRunbookStore((s) => s.filenameInput);
+  const setFilenameInput = useRunbookStore((s) => s.setFilenameInput);
+  const editorContent = useRunbookStore((s) => s.editorContent);
+  const setEditorContent = useRunbookStore((s) => s.setEditorContent);
+  const isSaving = useRunbookStore((s) => s.isSaving);
+  const confirmDeleteId = useRunbookStore((s) => s.confirmDeleteId);
+  const setConfirmDeleteId = useRunbookStore((s) => s.setConfirmDeleteId);
+  const filteredRunbooks = useRunbookStore((s) => s.filteredRunbooks);
+  const openEditor = useRunbookStore((s) => s.openEditor);
+  const closeEditor = useRunbookStore((s) => s.closeEditor);
+  const loadRunbooks = useRunbookStore((s) => s.loadRunbooks);
+  const saveRunbook = useRunbookStore((s) => s.saveRunbook);
+  const deleteRunbook = useRunbookStore((s) => s.deleteRunbook);
+  const editRunbook = useRunbookStore((s) => s.editRunbook);
 
   useEffect(() => {
     void loadRunbooks();
-  }, []);
-
-  async function handleDelete(runbook: RunbookSummary): Promise<void> {
-    try {
-      await runbookStorage.deleteRunbook(runbook.filename);
-      setConfirmDeleteId(null);
-      await loadRunbooks();
-    } catch (deleteError) {
-      setError(deleteError instanceof Error ? deleteError.message : 'Failed to delete runbook.');
-    }
-  }
-
-  async function handleEdit(runbook: RunbookSummary): Promise<void> {
-    try {
-      const content = await runbookStorage.readRunbook(runbook.filename);
-      setFilenameInput(runbook.filename);
-      setEditorContent(content);
-      setIsEditorOpen(true);
-    } catch (readError) {
-      setError(readError instanceof Error ? readError.message : 'Failed to open runbook.');
-    }
-  }
-
-  function handleCreateNew(): void {
-    setFilenameInput('new-runbook.yaml');
-    setEditorContent(DEFAULT_RUNBOOK_TEMPLATE);
-    setIsEditorOpen(true);
-  }
-
-  async function handleSaveRunbook(): Promise<void> {
-    setIsSaving(true);
-    setError(null);
-    try {
-      await runbookStorage.writeRunbook(filenameInput, editorContent);
-      setIsEditorOpen(false);
-      await loadRunbooks();
-    } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : 'Failed to save runbook.');
-    } finally {
-      setIsSaving(false);
-    }
-  }
+  }, [loadRunbooks]);
 
   const content = (
     <section className="flex h-full w-full flex-col gap-4 rounded-lg border border-border-default bg-surface-secondary p-4">
@@ -151,7 +76,7 @@ export function RunbookMarketplace({
           />
           <button
             type="button"
-            onClick={handleCreateNew}
+            onClick={() => openEditor()}
             className="rounded-md bg-[var(--color-accent-primary)] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)]"
           >
             Create New
@@ -191,14 +116,14 @@ export function RunbookMarketplace({
           <div className="flex justify-end gap-2">
             <button
               type="button"
-              onClick={() => setIsEditorOpen(false)}
+              onClick={closeEditor}
               className="rounded-md border border-border-default bg-surface-tertiary px-3 py-2 text-sm text-text-primary transition-colors hover:bg-surface-hover"
             >
               Cancel
             </button>
             <button
               type="button"
-              onClick={() => void handleSaveRunbook()}
+              onClick={() => void saveRunbook()}
               disabled={isSaving}
               className="rounded-md bg-[var(--color-accent-primary)] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -211,13 +136,13 @@ export function RunbookMarketplace({
       <div className="min-h-0 flex-1 overflow-auto">
         {isLoading ? (
           <p className="text-sm text-text-secondary">Loading runbooks...</p>
-        ) : filteredRunbooks.length === 0 ? (
+        ) : filteredRunbooks().length === 0 ? (
           <p className="rounded-md border border-dashed border-border-default bg-surface-elevated p-6 text-center text-sm text-text-secondary">
             No runbooks found. Create one to get started.
           </p>
         ) : (
           <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-            {filteredRunbooks.map((runbook) => (
+            {filteredRunbooks().map((runbook) => (
               <article
                 key={runbook.filename}
                 className="flex flex-col gap-3 rounded-lg border border-border-default bg-surface-elevated p-4"
@@ -261,7 +186,7 @@ export function RunbookMarketplace({
                   </button>
                   <button
                     type="button"
-                    onClick={() => void handleEdit(runbook)}
+                    onClick={() => void editRunbook(runbook.filename)}
                     className="rounded-md border border-border-default bg-surface-tertiary px-3 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-surface-hover"
                   >
                     Edit
@@ -270,7 +195,7 @@ export function RunbookMarketplace({
                     <>
                       <button
                         type="button"
-                        onClick={() => void handleDelete(runbook)}
+                        onClick={() => void deleteRunbook(runbook.filename)}
                         className="rounded-md border border-[var(--color-status-error)]/60 bg-[var(--color-status-error)]/10 px-3 py-1.5 text-xs font-medium text-[var(--color-status-error)] transition-colors hover:bg-[var(--color-status-error)]/20"
                       >
                         Confirm Delete?

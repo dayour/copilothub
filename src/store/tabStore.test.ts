@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useTabStore, type Tab } from './tabStore';
 
 function makeInitialTabs(): Tab[] {
@@ -37,6 +37,10 @@ function makeInitialTabs(): Tab[] {
 describe('tabStore', () => {
   beforeEach(() => {
     useTabStore.setState({ tabs: makeInitialTabs() });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('initial state has exactly chat + browser tabs with browser active', () => {
@@ -243,5 +247,17 @@ describe('tabStore', () => {
     const browsers = useTabStore.getState().browserTabs();
     expect(browsers.every((t) => t.type === 'browser')).toBe(true);
     expect(browsers).toHaveLength(2);
+  });
+
+  it('closeTab with nonexistent ID is a no-op', () => {
+    const before = useTabStore.getState().tabs.length;
+    useTabStore.getState().closeTab('nonexistent-id-xyz');
+    expect(useTabStore.getState().tabs.length).toBe(before);
+  });
+
+  it('setActiveTab with nonexistent ID is a no-op', () => {
+    const activeBefore = useTabStore.getState().activeTab();
+    useTabStore.getState().setActiveTab('nonexistent-id-xyz');
+    expect(useTabStore.getState().activeTab()?.id).toBe(activeBefore?.id);
   });
 });

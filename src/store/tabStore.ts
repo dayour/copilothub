@@ -172,6 +172,8 @@ export const useTabStore = create<TabStore>()(
 
     setActiveTab: (id: string) => {
       set((state) => {
+        const exists = state.tabs.some((tab) => tab.id === id);
+        if (!exists) return;
         for (const tab of state.tabs) {
           tab.isActive = tab.id === id;
         }

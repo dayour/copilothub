@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { RunbookExecutor } from './runbookExecutor';
 import type { ParsedRunbook } from './runbookParser';
@@ -20,6 +20,10 @@ function createRunbook(steps: ParsedRunbook['steps']): ParsedRunbook {
 }
 
 describe('RunbookExecutor', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('executes a simple runbook with one step', async () => {
     const runbook = createRunbook([
       {
@@ -184,5 +188,20 @@ describe('RunbookExecutor', () => {
     expect(mcpCallTool).toHaveBeenCalledTimes(1);
     expect(result.stepResults).toHaveLength(1);
     expect(result.stepResults[0]).toMatchObject({ stepId: 's1', status: 'completed' });
+  });
+
+  it('handles mcpCallTool that throws an exception', async () => {
+    const runbook = createRunbook([
+      {
+        id: 'step-1',
+        tool: 'shell.exec',
+        args: { command: 'echo hello' },
+      },
+    ]);
+    const mcpCallTool = vi.fn().mockRejectedValue(new Error('network crash'));
+    const executor = new RunbookExecutor(mcpCallTool);
+    const result = await executor.execute(runbook);
+    expect(result.status).toBe('failed');
+    expect(result.stepResults[0].status).toBe('failed');
   });
 });

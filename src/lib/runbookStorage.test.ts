@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { exists, mkdir, readDir, readTextFile, remove, writeTextFile } from '@tauri-apps/plugin-fs';
 import { homeDir, join } from '@tauri-apps/api/path';
 
@@ -16,6 +16,10 @@ describe('runbookStorage', () => {
     vi.mocked(remove).mockResolvedValue(undefined);
     vi.mocked(mkdir).mockResolvedValue(undefined);
     (runbookStorage as unknown as { runbooksDir: string | null }).runbooksDir = null;
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('getRunbooksDir returns correct path', async () => {

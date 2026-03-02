@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { emit, listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
 
@@ -15,6 +15,10 @@ import {
 describe('EventBridge', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('sendChatMessage emits event', async () => {
@@ -123,5 +127,12 @@ describe('EventBridge', () => {
     await bridge.getSidecarStatus();
 
     expect(invoke).toHaveBeenCalledWith('sidecar_status');
+  });
+
+  it('sendChatMessage handles emit failure gracefully', async () => {
+    const bridge = createEventBridge();
+    const { emit } = await import('@tauri-apps/api/event');
+    vi.mocked(emit).mockRejectedValueOnce(new Error('emit failed'));
+    await expect(bridge.sendChatMessage({ content: 'test', mode: 'chat' })).rejects.toThrow();
   });
 });

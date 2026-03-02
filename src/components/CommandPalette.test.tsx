@@ -4,11 +4,11 @@
 // manipulated directly via setState for deterministic test setup.
 // ---------------------------------------------------------------------------
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CommandPalette } from './CommandPalette';
 import { useAppStore } from '../store/appStore';
-import { useTabStore } from '../store/tabStore';
+import { useTabStore, type Tab } from '../store/tabStore';
 
 // jsdom does not implement scrollIntoView -- stub it to prevent runtime errors
 // when the component tries to scroll selected items into view.
@@ -34,6 +34,45 @@ function resetAppStore(overrides: Partial<ReturnType<typeof useAppStore.getState
   });
 }
 
+function makeTabs(): Tab[] {
+  return [
+    {
+      id: 'chat-tab',
+      type: 'chat',
+      title: 'Copilot Chat',
+      url: '',
+      favicon: '',
+      isActive: false,
+      isPinned: true,
+      historyStack: [],
+      historyIndex: -1,
+      isLoading: false,
+      canGoBack: false,
+      canGoForward: false,
+    },
+    {
+      id: 'browser-tab',
+      type: 'browser',
+      title: 'New Tab',
+      url: '',
+      favicon: '',
+      isActive: true,
+      isPinned: false,
+      historyStack: [],
+      historyIndex: -1,
+      isLoading: false,
+      canGoBack: false,
+      canGoForward: false,
+    },
+  ];
+}
+
+function resetTabStore() {
+  useTabStore.setState({
+    tabs: makeTabs(),
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -41,6 +80,11 @@ function resetAppStore(overrides: Partial<ReturnType<typeof useAppStore.getState
 describe('CommandPalette', () => {
   beforeEach(() => {
     resetAppStore();
+    resetTabStore();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   // -------------------------------------------------------------------------

@@ -1,8 +1,12 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { parseRunbook, resolveVariableReferences } from './runbookParser';
 
 describe('runbookParser', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('parses a complete valid runbook YAML', () => {
     const yaml = `
 manifest:

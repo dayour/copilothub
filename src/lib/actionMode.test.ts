@@ -1,8 +1,12 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { executeAction, formatActionResult, parseActionCommand } from './actionMode';
 
 describe('actionMode', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('@browser navigate parses to browser_navigate with url', () => {
     const command = parseActionCommand('@browser navigate to https://example.com');
     expect(command).toEqual({

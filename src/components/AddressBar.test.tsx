@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { AddressBar } from './AddressBar';
 import { useTabStore, type Tab } from '../store/tabStore';
@@ -39,6 +39,10 @@ function makeTabs(): Tab[] {
 describe('AddressBar', () => {
   beforeEach(() => {
     useTabStore.setState({ tabs: makeTabs() });
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
     vi.restoreAllMocks();
   });
 

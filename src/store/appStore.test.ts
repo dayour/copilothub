@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAppStore } from './appStore';
 
 describe('appStore', () => {
@@ -13,6 +13,10 @@ describe('appStore', () => {
       copilotSidebarOpen: false,
       isAuthenticated: false,
     });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('has correct default state', () => {
