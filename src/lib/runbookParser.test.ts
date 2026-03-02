@@ -229,4 +229,35 @@ steps: []
     expect(result.errors[0]?.field).toBe('yaml');
     expect(result.errors[0]?.message).toBeTruthy();
   });
+
+  it('handles step with empty args object', () => {
+    const yaml = `
+manifest:
+  name: Test
+  version: "1.0"
+  author: Test
+  description: Test
+  tags: []
+  visibility: personal
+variables: []
+steps:
+  - id: s1
+    tool: browser.screenshot
+    args: {}
+`;
+    const result = parseRunbook(yaml);
+    expect(result.success).toBe(true);
+  });
+
+  it('handles very long step list', () => {
+    let stepsYaml = '';
+    for (let i = 0; i < 50; i++) {
+      stepsYaml += `  - id: step-${i}\n    tool: browser.screenshot\n    args: {}\n`;
+    }
+    const yaml =
+      `manifest:\n  name: Test\n  version: "1.0"\n  author: Test\n  description: Test\n  tags: []\n  visibility: personal\nvariables: []\nsteps:\n${stepsYaml}`;
+    const result = parseRunbook(yaml);
+    expect(result.success).toBe(true);
+    expect(result.runbook!.steps.length).toBe(50);
+  });
 });

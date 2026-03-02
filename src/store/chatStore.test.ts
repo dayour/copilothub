@@ -145,4 +145,19 @@ describe('chatStore', () => {
     store.completeStream(assistantIds[1]);
     expect(useChatStore.getState().isProcessing).toBe(false);
   });
+
+  it('appendStreamChunk to nonexistent messageId is a no-op', () => {
+    useChatStore.getState().sendMessage('test');
+    const before = useChatStore.getState().messages.length;
+    useChatStore.getState().appendStreamChunk('nonexistent-id', 'chunk');
+    expect(useChatStore.getState().messages.length).toBe(before);
+  });
+
+  it('completeStream called twice on same message is idempotent', () => {
+    useChatStore.getState().sendMessage('test');
+    const assistantMsg = useChatStore.getState().messages.find((m) => m.role === 'assistant');
+    useChatStore.getState().completeStream(assistantMsg!.id);
+    useChatStore.getState().completeStream(assistantMsg!.id);
+    expect(useChatStore.getState().isProcessing).toBe(false);
+  });
 });

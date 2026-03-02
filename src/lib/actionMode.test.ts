@@ -122,4 +122,33 @@ describe('actionMode', () => {
     const formatted = formatActionResult({ success: false, output: '', error: 'tool failed' });
     expect(formatted).toBe('Action failed: tool failed');
   });
+
+  it('handles extra whitespace in command', () => {
+    const cmd = parseActionCommand('@browser   navigate   to   https://example.com');
+    expect(cmd).not.toBeNull();
+    expect(cmd!.tool).toBe('browser_navigate');
+  });
+
+  it('handles URLs with query parameters', () => {
+    const cmd = parseActionCommand('@browser navigate to https://test.com?param=value&other=123');
+    expect(cmd).not.toBeNull();
+    expect(cmd!.args.url).toContain('param=value');
+  });
+
+  it('handles terminal command with pipes', () => {
+    const cmd = parseActionCommand('@terminal run ls -la | grep .txt');
+    expect(cmd).not.toBeNull();
+    expect(cmd!.tool).toBe('shell_exec');
+  });
+
+  it('returns null for @browser click without selector', () => {
+    const cmd = parseActionCommand('@browser click');
+    expect(cmd).toBeNull();
+  });
+
+  it('formatActionResult handles empty output', () => {
+    const result = formatActionResult({ success: true, output: '' });
+    expect(typeof result).toBe('string');
+    expect(result).toBe('Action completed successfully.');
+  });
 });
