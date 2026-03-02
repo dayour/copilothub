@@ -58,7 +58,9 @@ export function useChat() {
   // ---------------------------------------------------------------------------
   function getLatestAssistantId(): string {
     const msgs = useChatStore.getState().messages;
-    return msgs[msgs.length - 1].id;
+    const last = msgs[msgs.length - 1];
+    if (!last) return crypto.randomUUID();
+    return last.id;
   }
 
   // ---------------------------------------------------------------------------

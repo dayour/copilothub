@@ -72,13 +72,15 @@ export function TabBar({ vertical }: { vertical?: boolean }) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-2">
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1" role="tablist">
             {tabs.map((tab) => {
-              const isFaviconAvailable = Boolean(tab.favicon) && !brokenFavicons.has(tab.id);
+              const isFaviconAvailable = Boolean(tab?.favicon) && !brokenFavicons.has(tab?.id ?? '');
               return (
                 <button
                   key={tab.id}
                   type="button"
+                  role="tab"
+                  aria-selected={tab.isActive}
                   onClick={() => setActiveTab(tab.id)}
                   onContextMenu={(event) => {
                     event.preventDefault();
@@ -93,10 +95,14 @@ export function TabBar({ vertical }: { vertical?: boolean }) {
                   <span className="flex h-4 w-4 shrink-0 items-center justify-center">
                     {isFaviconAvailable ? (
                       <img
-                        src={tab.favicon}
+                        src={tab?.favicon ?? ''}
                         alt=""
                         className="h-4 w-4"
-                        onError={() => handleFaviconError(tab.id)}
+                        onError={() => {
+                          if (tab?.id) {
+                            handleFaviconError(tab.id);
+                          }
+                        }}
                       />
                     ) : (
                       <TypeIcon type={tab.type} />
@@ -139,13 +145,15 @@ export function TabBar({ vertical }: { vertical?: boolean }) {
   return (
     <>
       <div className="flex h-[36px] w-full items-center border-b border-[var(--color-border-default)] bg-[var(--color-surface-secondary)] px-1">
-        <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1">
+        <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1" role="tablist">
           {tabs.map((tab) => {
-            const isFaviconAvailable = Boolean(tab.favicon) && !brokenFavicons.has(tab.id);
+            const isFaviconAvailable = Boolean(tab?.favicon) && !brokenFavicons.has(tab?.id ?? '');
             return (
               <button
                 key={tab.id}
                 type="button"
+                role="tab"
+                aria-selected={tab.isActive}
                 onClick={() => setActiveTab(tab.id)}
                 onContextMenu={(event) => {
                   event.preventDefault();
@@ -163,10 +171,14 @@ export function TabBar({ vertical }: { vertical?: boolean }) {
                 <span className="flex h-4 w-4 shrink-0 items-center justify-center">
                   {isFaviconAvailable ? (
                     <img
-                      src={tab.favicon}
+                      src={tab?.favicon ?? ''}
                       alt=""
                       className="h-4 w-4"
-                      onError={() => handleFaviconError(tab.id)}
+                      onError={() => {
+                        if (tab?.id) {
+                          handleFaviconError(tab.id);
+                        }
+                      }}
                     />
                   ) : (
                     <TypeIcon type={tab.type} />

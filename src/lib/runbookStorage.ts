@@ -107,7 +107,8 @@ class RunbookStorage {
 
     const summaries = await Promise.all(
       entries
-        .filter((entry) => entry.isFile && entry.name.toLowerCase().endsWith('.yaml'))
+        .filter((entry) => entry.isFile)
+        .filter((e) => e.name && typeof e.name === 'string' && e.name.endsWith('.yaml'))
         .map(async (entry) => {
           const filePath = await join(runbooksDir, entry.name);
           const content = await readTextFile(filePath);

@@ -46,7 +46,7 @@ function BrowserTabContent({ tab }: { tab: { id: string; url: string; isActive: 
         src={tab.url}
         className="w-full h-full border-0"
         title={`Browser tab ${tab.id}`}
-        sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-top-navigation"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"
         onLoad={(e) => {
           try {
             const title = (e.target as HTMLIFrameElement).contentDocument?.title;

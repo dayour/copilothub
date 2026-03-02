@@ -90,15 +90,21 @@ async function callWithTimeout<T>(promise: Promise<T>, timeoutMs?: number): Prom
     return promise;
   }
 
-  return await Promise.race([
-    promise,
-    new Promise<T>((_, reject) => {
-      const timeoutId = setTimeout(() => {
-        clearTimeout(timeoutId);
-        reject(new Error(`Step timed out after ${timeoutMs}ms`));
-      }, timeoutMs);
-    }),
-  ]);
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error(`Step timed out after ${timeoutMs}ms`));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId);
+    }
+  }
 }
 
 function assertNotAborted(signal?: AbortSignal): void {

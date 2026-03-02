@@ -262,14 +262,15 @@ export function parseRunbook(yamlContent: string): ParseResult {
       const result = validateStep(step, index);
       errors.push(...result.errors);
 
-      if (isRecord(step) && isNonEmptyString(step.id)) {
-        if (seenStepIds.has(step.id)) {
+      if (typeof step === 'object' && step !== null && typeof (step as { id?: unknown }).id === 'string') {
+        const stepId = (step as { id: string }).id;
+        if (seenStepIds.has(stepId)) {
           errors.push({
             field: `steps[${index}].id`,
-            message: `duplicate step id "${step.id}" is not allowed`,
+            message: `duplicate step id "${stepId}" is not allowed`,
           });
         } else {
-          seenStepIds.add(step.id);
+          seenStepIds.add(stepId);
         }
       }
     });

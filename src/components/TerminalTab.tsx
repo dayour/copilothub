@@ -43,11 +43,19 @@ export function TerminalTab(_props: TerminalTabProps) {
     let child: Child | null = null;
 
     const onStdout = (data: string) => {
-      terminal.write(data);
+      try {
+        terminal.write(data);
+      } catch {
+        // no-op to keep terminal alive on callback errors
+      }
     };
 
     const onStderr = (data: string) => {
-      terminal.write(data);
+      try {
+        terminal.write(data);
+      } catch {
+        // no-op to keep terminal alive on callback errors
+      }
     };
 
     const onClose = (payload: { code: number | null; signal: number | null }) => {
@@ -88,18 +96,46 @@ export function TerminalTab(_props: TerminalTabProps) {
       });
 
     return () => {
-      resizeObserver.disconnect();
-      inputDisposable.dispose();
+      try {
+        resizeObserver.disconnect();
+      } catch {
+        // no-op on cleanup
+      }
+      try {
+        inputDisposable.dispose();
+      } catch {
+        // no-op on cleanup
+      }
 
-      command.stdout.off("data", onStdout);
-      command.stderr.off("data", onStderr);
-      command.off("close", onClose);
-      command.off("error", onError);
+      try {
+        command.stdout.off("data", onStdout);
+      } catch {
+        // no-op on cleanup
+      }
+      try {
+        command.stderr.off("data", onStderr);
+      } catch {
+        // no-op on cleanup
+      }
+      try {
+        command.off("close", onClose);
+      } catch {
+        // no-op on cleanup
+      }
+      try {
+        command.off("error", onError);
+      } catch {
+        // no-op on cleanup
+      }
 
       if (child) {
-        void child.kill().catch(() => {
+        try {
+          void child.kill().catch(() => {
+            // no-op on cleanup
+          });
+        } catch {
           // no-op on cleanup
-        });
+        }
       }
 
       terminal.dispose();

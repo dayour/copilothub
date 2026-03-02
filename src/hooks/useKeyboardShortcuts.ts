@@ -72,8 +72,12 @@ export function useKeyboardShortcuts(): void {
         if (tabStore.tabs.length > 1 && activeTab) {
           const currentIndex = tabStore.tabs.findIndex((t) => t.id === activeTab.id);
           if (currentIndex !== -1) {
-            const nextIndex = (currentIndex + 1) % tabStore.tabs.length;
-            tabStore.setActiveTab(tabStore.tabs[nextIndex].id);
+            const nextIndex =
+              ((currentIndex + 1) % tabStore.tabs.length + tabStore.tabs.length) %
+              tabStore.tabs.length;
+            if (nextIndex >= 0 && nextIndex < tabStore.tabs.length) {
+              tabStore.setActiveTab(tabStore.tabs[nextIndex].id);
+            }
           }
         }
         return;
@@ -85,8 +89,11 @@ export function useKeyboardShortcuts(): void {
           const currentIndex = tabStore.tabs.findIndex((t) => t.id === activeTab.id);
           if (currentIndex !== -1) {
             const prevIndex =
-              (currentIndex - 1 + tabStore.tabs.length) % tabStore.tabs.length;
-            tabStore.setActiveTab(tabStore.tabs[prevIndex].id);
+              ((currentIndex - 1) % tabStore.tabs.length + tabStore.tabs.length) %
+              tabStore.tabs.length;
+            if (prevIndex >= 0 && prevIndex < tabStore.tabs.length) {
+              tabStore.setActiveTab(tabStore.tabs[prevIndex].id);
+            }
           }
         }
         return;

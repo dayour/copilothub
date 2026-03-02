@@ -78,6 +78,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function hasNonEmptyString(field: unknown): field is string {
+  return !!field && typeof field === 'string' && field.length > 0;
+}
+
 function normalizeExpiresAt(input: SidecarAuthResponse): number {
   if (typeof input.expiresAt === 'number' && Number.isFinite(input.expiresAt)) {
     return input.expiresAt > 1_000_000_000_000 ? input.expiresAt : input.expiresAt * 1000;
@@ -211,7 +215,12 @@ export class EntraAuth {
       isAuthenticated: true,
       accessToken: response.accessToken,
       expiresAt: normalizeExpiresAt(response),
-      userInfo: response.userInfo?.name && response.userInfo.email && response.userInfo.oid ? response.userInfo as EntraUserInfo : null,
+      userInfo:
+        hasNonEmptyString(response.userInfo?.name) &&
+        hasNonEmptyString(response.userInfo?.email) &&
+        hasNonEmptyString(response.userInfo?.oid)
+          ? (response.userInfo as EntraUserInfo)
+          : null,
     };
     this.notifyListeners();
 
@@ -269,7 +278,9 @@ export class EntraAuth {
         accessToken: response.accessToken,
         expiresAt: normalizeExpiresAt(response),
         userInfo:
-          response.userInfo?.name && response.userInfo.email && response.userInfo.oid
+          hasNonEmptyString(response.userInfo?.name) &&
+          hasNonEmptyString(response.userInfo?.email) &&
+          hasNonEmptyString(response.userInfo?.oid)
             ? (response.userInfo as EntraUserInfo)
             : this.state.userInfo,
       };

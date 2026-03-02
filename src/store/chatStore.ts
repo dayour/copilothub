@@ -137,9 +137,9 @@ export const useChatStore = create<ChatStore>()(
         if (msg) {
           msg.isStreaming = false;
         }
-        // If no messages are still streaming, processing is done
-        const anyStreaming = state.messages.some((m) => m.isStreaming);
-        if (!anyStreaming) {
+        // Only clear processing if no other messages are still streaming
+        const anyStillStreaming = state.messages.some((m) => m.isStreaming);
+        if (!anyStillStreaming) {
           state.isProcessing = false;
         }
       });

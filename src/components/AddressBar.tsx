@@ -141,7 +141,7 @@ export function AddressBar() {
           autoCapitalize="off"
           autoComplete="off"
           autoCorrect="off"
-          aria-label="Address input"
+          aria-label="Address bar"
         />
       </div>
 

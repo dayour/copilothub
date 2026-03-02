@@ -150,7 +150,8 @@ export function ChatInput() {
   function insertMention(mention: MentionTarget) {
     if (!mentionCtx) return;
     const el = textareaRef.current;
-    const cursorPos = el?.selectionStart ?? inputDraft.length;
+    if (!el) return;
+    const cursorPos = el.selectionStart ?? inputDraft.length;
 
     const before = inputDraft.slice(0, mentionCtx.startIndex);
     const after = inputDraft.slice(cursorPos);
@@ -164,11 +165,11 @@ export function ChatInput() {
     // Reposition cursor after the inserted mention + trailing space.
     const newCursorPos = mentionCtx.startIndex + mention.length + 1;
     requestAnimationFrame(() => {
-      if (el) {
-        el.focus();
-        el.selectionStart = newCursorPos;
-        el.selectionEnd = newCursorPos;
-      }
+      const current = textareaRef.current;
+      if (!current) return;
+      current.focus();
+      current.selectionStart = newCursorPos;
+      current.selectionEnd = newCursorPos;
     });
   }
 
@@ -321,6 +322,7 @@ export function ChatInput() {
               ? 'bg-accent-primary text-white'
               : 'bg-surface-tertiary text-text-secondary hover:text-text-primary hover:bg-surface-hover'
           }`}
+          aria-label="Chat mode"
         >
           Chat
         </button>
@@ -332,6 +334,7 @@ export function ChatInput() {
               ? 'bg-accent-primary text-white'
               : 'bg-surface-tertiary text-text-secondary hover:text-text-primary hover:bg-surface-hover'
           }`}
+          aria-label="Action mode"
         >
           Action
         </button>

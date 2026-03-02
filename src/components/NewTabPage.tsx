@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Search, MessageSquare, Terminal, Code, BookOpen } from 'lucide-react';
 import { useTabStore } from '../store/tabStore';
+import { APP_CONFIG } from '../lib/config';
 
 const URL_PROTOCOL_REGEX = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//;
 
@@ -43,7 +44,7 @@ export function NewTabPage({ tabId }: { tabId: string }) {
       <div className="flex w-full max-w-[900px] flex-col items-center">
         <div className="mb-10 text-center">
           <h1 className="text-4xl font-semibold tracking-tight text-[var(--color-text-primary)]">
-            CopilotHub
+            {APP_CONFIG.name}
           </h1>
           <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
             Your enterprise agentic workspace
@@ -124,7 +125,7 @@ export function NewTabPage({ tabId }: { tabId: string }) {
         </section>
 
         <footer className="mt-8 text-xs text-[var(--color-text-secondary)]">
-          CopilotHub v1.0 -- Enterprise Agentic Desktop OS
+          {APP_CONFIG.name} v{APP_CONFIG.version} -- {APP_CONFIG.description}
         </footer>
       </div>
     </div>

@@ -63,6 +63,7 @@ export function RunbookMarketplace({
   const [filenameInput, setFilenameInput] = useState('new-runbook.yaml');
   const [editorContent, setEditorContent] = useState(DEFAULT_RUNBOOK_TEMPLATE);
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const filteredRunbooks = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -94,13 +95,9 @@ export function RunbookMarketplace({
   }, []);
 
   async function handleDelete(runbook: RunbookSummary): Promise<void> {
-    const confirmed = window.confirm(`Delete runbook "${runbook.name}"?`);
-    if (!confirmed) {
-      return;
-    }
-
     try {
       await runbookStorage.deleteRunbook(runbook.filename);
+      setConfirmDeleteId(null);
       await loadRunbooks();
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : 'Failed to delete runbook.');
@@ -269,13 +266,32 @@ export function RunbookMarketplace({
                   >
                     Edit
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleDelete(runbook)}
-                    className="rounded-md border border-[var(--color-status-error)]/60 bg-[var(--color-status-error)]/10 px-3 py-1.5 text-xs font-medium text-[var(--color-status-error)] transition-colors hover:bg-[var(--color-status-error)]/20"
-                  >
-                    Delete
-                  </button>
+                  {confirmDeleteId === runbook.filename ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete(runbook)}
+                        className="rounded-md border border-[var(--color-status-error)]/60 bg-[var(--color-status-error)]/10 px-3 py-1.5 text-xs font-medium text-[var(--color-status-error)] transition-colors hover:bg-[var(--color-status-error)]/20"
+                      >
+                        Confirm Delete?
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDeleteId(null)}
+                        className="rounded-md border border-border-default bg-surface-tertiary px-3 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-surface-hover"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDeleteId(runbook.filename)}
+                      className="rounded-md border border-[var(--color-status-error)]/60 bg-[var(--color-status-error)]/10 px-3 py-1.5 text-xs font-medium text-[var(--color-status-error)] transition-colors hover:bg-[var(--color-status-error)]/20"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </article>
             ))}

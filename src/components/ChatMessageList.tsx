@@ -202,14 +202,18 @@ function renderTextSegment(text: string, segKey: string): React.ReactNode {
 /** Copy-to-clipboard button with transient "Copied" feedback. */
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(text);
+      setCopyFailed(false);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard API unavailable in some contexts -- silently ignore.
+      setCopied(false);
+      setCopyFailed(true);
+      setTimeout(() => setCopyFailed(false), 2000);
     }
   }, [text]);
 
@@ -220,13 +224,15 @@ function CopyButton({ text }: { text: string }) {
       className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px]
                  text-text-secondary hover:text-text-primary
                  hover:bg-surface-hover transition-colors"
-      aria-label={copied ? 'Copied' : 'Copy code'}
+      aria-label={copied ? 'Copied' : copyFailed ? 'Copy failed' : 'Copy code'}
     >
       {copied ? (
         <>
           <Check size={12} />
           <span>Copied</span>
         </>
+      ) : copyFailed ? (
+        <span>Copy failed</span>
       ) : (
         <>
           <Copy size={12} />

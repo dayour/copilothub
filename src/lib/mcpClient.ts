@@ -4,6 +4,8 @@
 // The server exposes browser automation tools via HTTP/SSE on localhost.
 // ---------------------------------------------------------------------------
 
+import { APP_CONFIG } from './config';
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -68,9 +70,9 @@ interface MCPRawResponse {
 // ---------------------------------------------------------------------------
 
 const DEFAULT_CONFIG: MCPClientConfig = {
-  host: 'localhost',
-  port: 3000,
-  timeout: 30_000,
+  host: APP_CONFIG.sidecarHost,
+  port: APP_CONFIG.sidecarPort,
+  timeout: APP_CONFIG.sidecarTimeout,
 };
 
 // ---------------------------------------------------------------------------
@@ -316,9 +318,11 @@ export class MCPClient {
     this.trackController(controller);
 
     const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+    let response: Response | undefined;
+    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
 
     try {
-      const response = await fetch(`${this.baseUrl}/sse`, {
+      response = await fetch(`${this.baseUrl}/sse`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -327,8 +331,6 @@ export class MCPClient {
         body: JSON.stringify(this.buildRequest(name, args)),
         signal: controller.signal,
       });
-
-      clearTimeout(timeoutId);
 
       if (!response.ok) {
         return {
@@ -350,51 +352,62 @@ export class MCPClient {
 
       // Parse the SSE event stream manually. Fetch ReadableStream gives us
       // raw bytes, so we decode and split on the SSE wire format.
-      const reader = response.body.getReader();
+      reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
       let aggregatedContent = '';
       let lastRaw: MCPRawResponse | null = null;
+      const MAX_ITERATIONS = 10_000;
+      let iterations = 0;
 
       // eslint-disable-next-line no-constant-condition
       while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+        try {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
+          iterations += 1;
+          if (iterations > MAX_ITERATIONS) {
+            break;
+          }
 
-        // SSE events are delimited by double newlines.
-        const events = buffer.split('\n\n');
-        // The last element is either empty or an incomplete event -- keep it.
-        buffer = events.pop() ?? '';
+          buffer += decoder.decode(value, { stream: true });
 
-        for (const event of events) {
-          const lines = event.split('\n');
-          for (const line of lines) {
-            if (!line.startsWith('data:')) continue;
+          // SSE events are delimited by double newlines.
+          const events = buffer.split('\n\n');
+          // The last element is either empty or an incomplete event -- keep it.
+          buffer = events.pop() ?? '';
 
-            const payload = line.slice('data:'.length).trim();
-            if (payload.length === 0) continue;
+          for (const event of events) {
+            const lines = event.split('\n');
+            for (const line of lines) {
+              if (!line.startsWith('data:')) continue;
 
-            try {
-              const parsed: MCPRawResponse = JSON.parse(payload);
-              lastRaw = parsed;
+              const payload = line.slice('data:'.length).trim();
+              if (payload.length === 0) continue;
 
-              // Extract incremental text for the chunk callback.
-              if (parsed.content && Array.isArray(parsed.content)) {
-                for (const item of parsed.content) {
-                  if (item.type === 'text' && typeof item.text === 'string') {
-                    aggregatedContent += item.text;
-                    onChunk(item.text);
+              try {
+                const parsed: MCPRawResponse = JSON.parse(payload);
+                lastRaw = parsed;
+
+                // Extract incremental text for the chunk callback.
+                if (parsed.content && Array.isArray(parsed.content)) {
+                  for (const item of parsed.content) {
+                    if (item.type === 'text' && typeof item.text === 'string') {
+                      aggregatedContent += item.text;
+                      onChunk(item.text);
+                    }
                   }
                 }
+              } catch {
+                // Non-JSON data line -- treat as raw text chunk.
+                aggregatedContent += payload;
+                onChunk(payload);
               }
-            } catch {
-              // Non-JSON data line -- treat as raw text chunk.
-              aggregatedContent += payload;
-              onChunk(payload);
             }
           }
+        } catch {
+          break;
         }
       }
 
@@ -410,8 +423,6 @@ export class MCPClient {
         isError: false,
       };
     } catch (err) {
-      clearTimeout(timeoutId);
-
       if (err instanceof DOMException && err.name === 'AbortError') {
         return {
           success: false,
@@ -428,6 +439,18 @@ export class MCPClient {
         error: `Streaming tool call "${name}" failed: ${message}`,
         isError: true,
       };
+    } finally {
+      clearTimeout(timeoutId);
+      if (reader) {
+        await reader.cancel().catch(() => {
+          /* intentional no-op */
+        });
+      }
+      if (response?.body) {
+        await response.body.cancel().catch(() => {
+          /* intentional no-op */
+        });
+      }
     }
   }
 

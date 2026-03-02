@@ -327,7 +327,8 @@ export function CommandPalette() {
         className="fixed z-50 left-1/2 -translate-x-1/2 w-[600px] bg-surface-secondary border border-default rounded-lg shadow-2xl"
         style={{ top: '20%' }}
         role="dialog"
-        aria-label="Command Palette"
+        aria-modal="true"
+        aria-label="Command palette"
         onKeyDown={handleKeyDown}
       >
         {/* Search input */}

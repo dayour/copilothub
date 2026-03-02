@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import { useEffect, useRef } from 'react';
+import { APP_CONFIG } from '../lib/config';
 
 interface VSCodeTabProps {
   isActive: boolean;
@@ -24,11 +25,11 @@ export function VSCodeTab({ isActive }: VSCodeTabProps) {
       className="w-full h-full"
       style={{ display: isActive ? 'block' : 'none' }}
     >
-      <iframe
-        ref={iframeRef}
-        src="https://vscode.dev"
-        className="w-full h-full border-0"
-        title="VS Code"
+        <iframe
+          ref={iframeRef}
+          src={APP_CONFIG.vsCodeUrl}
+          className="w-full h-full border-0"
+          title="VS Code"
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"
         allow="clipboard-read; clipboard-write"
       />

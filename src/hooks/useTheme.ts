@@ -93,17 +93,18 @@ export function useTheme(): void {
 
     applySelectedTheme();
 
-    if (theme !== 'system') {
-      return;
+    let handleSystemThemeChange: (() => void) | null = null;
+    if (theme === 'system') {
+      handleSystemThemeChange = () => {
+        applySelectedTheme();
+      };
+      mediaQuery.addEventListener('change', handleSystemThemeChange);
     }
 
-    const handleSystemThemeChange = () => {
-      applySelectedTheme();
-    };
-
-    mediaQuery.addEventListener('change', handleSystemThemeChange);
     return () => {
-      mediaQuery.removeEventListener('change', handleSystemThemeChange);
+      if (handleSystemThemeChange) {
+        mediaQuery.removeEventListener('change', handleSystemThemeChange);
+      }
     };
   }, [theme]);
 }

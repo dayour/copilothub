@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
-import { useAppStore } from '../store/appStore';
+import { useAppStore, type SidecarStatus } from '../store/appStore';
 import { eventBridge } from '../lib/eventBridge';
 import mcpClient from '../lib/mcpClient';
+
+const VALID_SIDECAR_STATUSES: readonly SidecarStatus[] = ['stopped', 'starting', 'running', 'error'];
 
 export function useSidecar() {
   const setSidecarStatus = useAppStore((s) => s.setSidecarStatus);
@@ -31,7 +33,9 @@ export function useSidecar() {
 
     // Listen for sidecar status changes
     eventBridge.onSidecarStatus((status) => {
-      if (mounted) setSidecarStatus(status as any);
+      if (mounted && VALID_SIDECAR_STATUSES.includes(status as SidecarStatus)) {
+        setSidecarStatus(status as SidecarStatus);
+      }
     });
 
     initSidecar();

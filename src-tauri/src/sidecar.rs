@@ -45,8 +45,20 @@ pub async fn start_sidecar(
 #[tauri::command]
 pub async fn stop_sidecar(state: State<'_, Mutex<SidecarState>>) -> Result<String, String> {
     let mut s = state.lock().map_err(|e| e.to_string())?;
-    if let Some(_pid) = s.pid {
-        // TODO: Kill process by PID
+    if let Some(pid) = s.pid {
+        #[cfg(target_os = "windows")]
+        {
+            let _ = std::process::Command::new("taskkill")
+                .args(["/PID", &pid.to_string(), "/F"])
+                .output();
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            let _ = std::process::Command::new("kill")
+                .args(["-9", &pid.to_string()])
+                .output();
+        }
     }
     s.status = "stopped".to_string();
     s.pid = None;
