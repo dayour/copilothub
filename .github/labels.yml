@@ -1,0 +1,48 @@
+# Issue / PR labels for CopilotHub
+# Synced automatically by the labels workflow.
+
+# ── Component area ────────────────────────────────────────────────────────────
+- name: "rea/store"
+  color: "0075ca"
+  description: "Zustand store changes (tabStore, chatStore, appStore, runbookStore)"
+
+- name: "rea/component"
+  color: "0075ca"
+  description: "React component changes (TabBar, ChatInput, CommandPalette, …)"
+
+- name: "rea/lib"
+  color: "0075ca"
+  description: "Library module changes (mcpClient, runbookExecutor, entraAuth, …)"
+
+- name: "rea/rust"
+  color: "b60205"
+  description: "Tauri / Rust backend changes (lib.rs, sidecar.rs, main.rs)"
+
+- name: "rea/test"
+  color: "0e8a16"
+  description: "Test infrastructure changes (Vitest, test helpers, setup)"
+
+- name: "rea/demo"
+  color: "e4e669"
+  description: "Demo app changes (calendar, coffeeshop, wiring diagram, …)"
+
+- name: "rea/security"
+  color: "d93f0b"
+  description: "Security-related changes (CSP, capabilities, dependency audits)"
+
+# ── Priority ──────────────────────────────────────────────────────────────────
+- name: "priority/p0"
+  color: "b60205"
+  description: "P0 – Critical / production outage"
+
+- name: "priority/p1"
+  color: "d93f0b"
+  description: "P1 – High priority; fix in current sprint"
+
+- name: "priority/p2"
+  color: "fbca04"
+  description: "P2 – Medium priority; fix in next sprint"
+
+- name: "priority/p3"
+  color: "c5def5"
+  description: "P3 – Low priority / nice-to-have"
