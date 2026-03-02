@@ -1,0 +1,66 @@
+name: Pay Electric Bill
+version: "1.0.0"
+author: Dayour
+description: Automate paying the monthly electric bill via the utility company website
+tags: [automation, billing, personal]
+visibility: personal
+variables:
+  - name: utility_url
+    type: string
+    source: literal
+    defaultValue: "https://www.example-utility.com/login"
+    description: Utility company login page URL
+  - name: username
+    type: string
+    source: prompt
+    description: Utility account username
+  - name: password
+    type: secret
+    source: "vault://personal/utility-password"
+    description: Utility account password from Key Vault
+steps:
+  - id: navigate-login
+    tool: browser.navigate
+    args:
+      url: "${utility_url}"
+    description: Navigate to utility login page
+  - id: fill-username
+    tool: browser.fill
+    args:
+      selector: "#username"
+      value: "${username}"
+    description: Enter username
+  - id: fill-password
+    tool: browser.fill
+    args:
+      selector: "#password"
+      value: "${password}"
+    description: Enter password
+  - id: click-login
+    tool: browser.click
+    args:
+      selector: "button[type='submit']"
+    description: Click login button
+    validate:
+      selector: ".dashboard"
+      expected: "true"
+    onError:
+      action: retry
+      count: 2
+  - id: navigate-billing
+    tool: browser.navigate
+    args:
+      url: "https://www.example-utility.com/billing"
+    description: Navigate to billing page
+  - id: screenshot-bill
+    tool: browser.screenshot
+    args: {}
+    description: Take screenshot of current bill
+  - id: click-pay
+    tool: browser.click
+    args:
+      selector: ".pay-now-button"
+    description: Click Pay Now button
+    validate:
+      selector: ".confirmation"
+      expected: "true"

@@ -1,0 +1,46 @@
+name: Headless Data Scrape Report
+version: "1.0.0"
+author: Dayour
+description: Scrape product pricing data from multiple competitor sites and generate a comparison report
+tags: [automation, scraping, reporting]
+visibility: personal
+variables:
+  - name: target_urls
+    type: string
+    source: prompt
+    description: Comma-separated URLs to scrape
+  - name: output_dir
+    type: string
+    source: literal
+    defaultValue: "~/CopilotOS/Reports"
+    description: Output directory for reports
+steps:
+  - id: scrape-site-1
+    tool: browser.navigate
+    args:
+      url: "https://www.example-store-1.com/products"
+    description: Navigate to first competitor site
+  - id: extract-prices-1
+    tool: browser.extract
+    args:
+      selector: ".product-price"
+    description: Extract all product prices from first site
+  - id: scrape-site-2
+    tool: browser.navigate
+    args:
+      url: "https://www.example-store-2.com/catalog"
+    description: Navigate to second competitor site
+  - id: extract-prices-2
+    tool: browser.extract
+    args:
+      selector: ".price-tag"
+    description: Extract all product prices from second site
+  - id: screenshot-results
+    tool: browser.screenshot
+    args: {}
+    description: Take screenshot of final results
+  - id: generate-report
+    tool: shell.exec
+    args:
+      command: "echo Report generated at ${output_dir}/pricing-report.html"
+    description: Generate comparison HTML report

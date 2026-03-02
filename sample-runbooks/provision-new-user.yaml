@@ -1,0 +1,58 @@
+name: Provision New User
+version: "1.0.0"
+author: Dayour
+description: Provision a new employee in Azure AD, assign licenses, and create mailbox
+tags: [enterprise, provisioning, entra, m365]
+visibility: enterprise
+variables:
+  - name: display_name
+    type: string
+    source: prompt
+    description: New user display name
+  - name: email
+    type: string
+    source: prompt
+    description: New user email address (UPN)
+  - name: department
+    type: string
+    source: prompt
+    description: Department name
+  - name: license_sku
+    type: string
+    source: literal
+    defaultValue: "ENTERPRISEPREMIUM"
+    description: M365 license SKU to assign
+steps:
+  - id: create-user
+    tool: mcp.invoke
+    args:
+      server: agent365
+      tool: create_user
+      arguments:
+        displayName: "${display_name}"
+        userPrincipalName: "${email}"
+        department: "${department}"
+    description: Create user in Entra ID via Agent 365
+    onError:
+      action: abort
+  - id: assign-license
+    tool: mcp.invoke
+    args:
+      server: agent365
+      tool: assign_license
+      arguments:
+        userPrincipalName: "${email}"
+        skuId: "${license_sku}"
+    description: Assign M365 license
+    timeout: 30000
+  - id: verify-mailbox
+    tool: shell.exec
+    args:
+      command: "az ad user show --id ${email} --query mailNickname"
+    description: Verify user mailbox creation
+    validate:
+      selector: "output"
+      expected: "true"
+    onError:
+      action: retry
+      count: 3
