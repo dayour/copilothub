@@ -12,24 +12,49 @@ import { ChatMessageList } from './components/ChatMessageList';
 import { ChatInput } from './components/ChatInput';
 import { TerminalTab } from './components/TerminalTab';
 import { VSCodeTab } from './components/VSCodeTab';
+import { NewTabPage } from './components/NewTabPage';
 import { CommandPalette } from './components/CommandPalette';
 import { CopilotSidebar } from './components/CopilotSidebar';
+import { RunbookMarketplace } from './components/RunbookMarketplace';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useEntraAuth } from './hooks/useEntraAuth';
 import { useTheme } from './hooks/useTheme';
+import { useChat } from './hooks/useChat';
+import { useSidecar } from './hooks/useSidecar';
 
 function BrowserTabContent({ tab }: { tab: { id: string; url: string; isActive: boolean } }) {
   // For MVP, render browser tabs as iframes.
   // Future: use Tauri multi-webview API for true WebView2 instances.
+  if (!tab.url || tab.url === 'about:blank') {
+    return (
+      <div
+        className="w-full h-full"
+        style={{ display: tab.isActive ? 'block' : 'none' }}
+      >
+        <NewTabPage tabId={tab.id} />
+      </div>
+    );
+  }
+
   return (
     <div
       className="w-full h-full"
       style={{ display: tab.isActive ? 'block' : 'none' }}
     >
       <iframe
+        key={tab.url}
         src={tab.url}
         className="w-full h-full border-0"
         title={`Browser tab ${tab.id}`}
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-top-navigation"
+        onLoad={(e) => {
+          try {
+            const title = (e.target as HTMLIFrameElement).contentDocument?.title;
+            if (title) useTabStore.getState().updateTabTitle(tab.id, title);
+          } catch {
+            // Cross-origin, can't access title
+          }
+        }}
       />
     </div>
   );
@@ -52,6 +77,9 @@ function ChatTabContent({ isActive }: { isActive: boolean }) {
 function App() {
   useTheme();
   useKeyboardShortcuts();
+  useChat(); // Initialize event bridge listeners
+  useEntraAuth();
+  useSidecar();
 
   const tabs = useTabStore((s) => s.tabs);
   const activeTab = useTabStore((s) => s.activeTab());
@@ -102,6 +130,12 @@ function App() {
                       style={{ display: tab.isActive ? 'block' : 'none' }}
                     >
                       <TerminalTab isActive={tab.isActive} />
+                    </div>
+                  );
+                case 'runbook':
+                  return (
+                    <div key={tab.id} className="w-full h-full overflow-auto" style={{ display: tab.isActive ? 'block' : 'none' }}>
+                      <RunbookMarketplace />
                     </div>
                   );
                 default:

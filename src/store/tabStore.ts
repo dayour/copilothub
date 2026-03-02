@@ -10,7 +10,7 @@ import { immer } from 'zustand/middleware/immer';
 // Types
 // ---------------------------------------------------------------------------
 
-export type TabType = 'browser' | 'chat' | 'vscode' | 'terminal';
+export type TabType = 'browser' | 'chat' | 'vscode' | 'terminal' | 'runbook';
 
 export interface Tab {
   id: string;
@@ -76,10 +76,11 @@ const DEFAULT_TITLES: Record<TabType, string> = {
   chat: 'Copilot Chat',
   vscode: 'VS Code',
   terminal: 'Terminal',
+  runbook: 'Runbook Marketplace',
 };
 
 function createTab(type: TabType, url?: string): Tab {
-  const resolvedUrl = type === 'browser' ? (url ?? 'https://copilot.microsoft.com') : '';
+  const resolvedUrl = type === 'browser' ? (url ?? '') : '';
   return {
     id: nextTabId(),
     type,
@@ -111,7 +112,7 @@ function buildInitialTabs(): Tab[] {
   chatTab.isPinned = true; // chat tab is persistent
   chatTab.isActive = false;
 
-  const browserTab = createTab('browser', 'https://copilot.microsoft.com');
+  const browserTab = createTab('browser');
   browserTab.isActive = true;
 
   return [chatTab, browserTab];

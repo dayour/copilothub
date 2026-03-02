@@ -23,6 +23,7 @@ import {
   Building2,
   Play,
   Square,
+  BookOpen,
 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -105,6 +106,13 @@ export function CommandPalette() {
           }
           close();
         },
+      },
+      {
+        id: 'open-runbook-marketplace',
+        label: 'Open Runbook Marketplace',
+        category: 'Tabs',
+        icon: <BookOpen size={16} />,
+        action: () => { addTab('runbook'); close(); },
       },
       {
         id: 'close-current-tab',

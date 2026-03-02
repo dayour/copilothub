@@ -30,4 +30,23 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-state": ["zustand", "immer"],
+          "vendor-icons": ["lucide-react"],
+          "vendor-terminal": ["@xterm/xterm", "@xterm/addon-fit"],
+          "vendor-tauri": [
+            "@tauri-apps/api",
+            "@tauri-apps/plugin-shell",
+            "@tauri-apps/plugin-fs",
+            "@tauri-apps/plugin-dialog",
+          ],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 400,
+  },
 }));

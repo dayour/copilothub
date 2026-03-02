@@ -1,0 +1,134 @@
+import { useMemo, useState } from 'react';
+import { Search, MessageSquare, Terminal, Code, BookOpen } from 'lucide-react';
+import { useTabStore } from '../store/tabStore';
+
+const URL_PROTOCOL_REGEX = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//;
+
+function normalizeUrl(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  if (URL_PROTOCOL_REGEX.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
+export function NewTabPage({ tabId }: { tabId: string }) {
+  const tabs = useTabStore((state) => state.tabs);
+  const addTab = useTabStore((state) => state.addTab);
+  const setActiveTab = useTabStore((state) => state.setActiveTab);
+  const updateTabUrl = useTabStore((state) => state.updateTabUrl);
+
+  const [inputValue, setInputValue] = useState('');
+
+  const chatTabId = useMemo(
+    () => tabs.find((tab) => tab.type === 'chat')?.id,
+    [tabs],
+  );
+
+  const handleNavigate = () => {
+    const nextUrl = normalizeUrl(inputValue);
+    if (!nextUrl) return;
+    updateTabUrl(tabId, nextUrl);
+  };
+
+  const handleOpenChat = () => {
+    if (chatTabId) {
+      setActiveTab(chatTabId);
+      return;
+    }
+    addTab('chat');
+  };
+
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-[var(--color-surface-primary)] px-6">
+      <div className="flex w-full max-w-[900px] flex-col items-center">
+        <div className="mb-10 text-center">
+          <h1 className="text-4xl font-semibold tracking-tight text-[var(--color-text-primary)]">
+            CopilotHub
+          </h1>
+          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+            Your enterprise agentic workspace
+          </p>
+        </div>
+
+        <div className="relative w-full max-w-[600px]">
+          <Search
+            className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--color-text-secondary)]"
+            aria-hidden="true"
+          />
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(event) => setInputValue(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                handleNavigate();
+              }
+            }}
+            placeholder="Search or enter URL"
+            className="h-12 w-full rounded-full border border-[var(--color-border-default)] bg-[var(--color-surface-secondary)] pl-12 pr-4 text-lg text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-border-focus)]"
+            spellCheck={false}
+            autoCapitalize="off"
+            autoComplete="off"
+            autoCorrect="off"
+            aria-label="New tab address input"
+          />
+        </div>
+
+        <div className="mt-6 grid w-full max-w-[760px] grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <button
+            type="button"
+            onClick={handleOpenChat}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <MessageSquare className="h-4 w-4" />
+            <span>Open Chat</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => addTab('terminal')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <Terminal className="h-4 w-4" />
+            <span>New Terminal</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => addTab('vscode')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <Code className="h-4 w-4" />
+            <span>VS Code</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => addTab('runbook')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <BookOpen className="h-4 w-4" />
+            <span>Runbooks</span>
+          </button>
+        </div>
+
+        <section className="mt-10 w-full max-w-[760px] rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-secondary)] p-5">
+          <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">Getting Started</h2>
+          <ul className="mt-3 space-y-2 text-sm text-[var(--color-text-secondary)]">
+            <li>Press Ctrl+Shift+P for Command Palette</li>
+            <li>Press Ctrl+T for a new browser tab</li>
+            <li>Type @browser in Action mode to control the browser</li>
+            <li>Create runbooks in YAML to automate workflows</li>
+          </ul>
+        </section>
+
+        <footer className="mt-8 text-xs text-[var(--color-text-secondary)]">
+          CopilotHub v1.0 -- Enterprise Agentic Desktop OS
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+export default NewTabPage;

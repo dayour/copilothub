@@ -26,6 +26,7 @@ export interface AppStore {
   sidebarPosition: SidebarPosition;
   verticalTabsEnabled: boolean;
   sidecarStatus: SidecarStatus;
+  isAuthenticated: boolean;
   commandPaletteOpen: boolean;
   copilotSidebarOpen: boolean;
 
@@ -36,6 +37,7 @@ export interface AppStore {
   toggleCommandPalette: () => void;
   toggleCopilotSidebar: () => void;
   setSidecarStatus: (status: SidecarStatus) => void;
+  setAuthenticated: (value: boolean) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -49,6 +51,7 @@ export const useAppStore = create<AppStore>()(
     sidebarPosition: 'left' as SidebarPosition,
     verticalTabsEnabled: false,
     sidecarStatus: 'stopped' as SidecarStatus,
+    isAuthenticated: false,
     commandPaletteOpen: false,
     copilotSidebarOpen: false,
 
@@ -87,6 +90,12 @@ export const useAppStore = create<AppStore>()(
     setSidecarStatus: (status: SidecarStatus) => {
       set((state) => {
         state.sidecarStatus = status;
+      });
+    },
+
+    setAuthenticated: (value: boolean) => {
+      set((state) => {
+        state.isAuthenticated = value;
       });
     },
   })),

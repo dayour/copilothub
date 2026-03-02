@@ -6,6 +6,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useChatStore } from '../store/chatStore';
 import type { MentionTarget } from '../store/chatStore';
+import { useChat } from '../hooks/useChat';
 import { SendHorizontal } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -79,10 +80,12 @@ export function ChatInput() {
   const inputDraft = useChatStore((s) => s.inputDraft);
   const isProcessing = useChatStore((s) => s.isProcessing);
   const mode = useChatStore((s) => s.mode);
-  const sendMessage = useChatStore((s) => s.sendMessage);
   const setInputDraft = useChatStore((s) => s.setInputDraft);
   const setMode = useChatStore((s) => s.setMode);
   const setActiveMention = useChatStore((s) => s.setActiveMention);
+
+  // -- Chat bridge (routes through eventBridge / actionMode) ----------------
+  const { sendMessage: chatSendMessage } = useChat();
 
   // -- Local state -----------------------------------------------------------
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -139,7 +142,7 @@ export function ChatInput() {
   function handleSend() {
     const trimmed = inputDraft.trim();
     if (!trimmed || isProcessing) return;
-    sendMessage(trimmed);
+    void chatSendMessage(trimmed);
     setShowMentions(false);
     setMentionCtx(null);
   }

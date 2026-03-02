@@ -4,6 +4,7 @@ import {
   MessageSquare,
   Code,
   Terminal,
+  BookOpen,
   Plus,
   X,
   type LucideProps,
@@ -21,6 +22,7 @@ const TAB_ICONS: Record<TabType, TabIconComponent> = {
   chat: MessageSquare,
   vscode: Code,
   terminal: Terminal,
+  runbook: BookOpen,
 };
 
 function TypeIcon({ type }: { type: TabType }) {
