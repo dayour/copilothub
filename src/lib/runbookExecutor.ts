@@ -1,8 +1,10 @@
 import { ParsedRunbook, resolveVariableReferences } from './runbookParser';
 import {
   RunbookExecution,
+  RunbookStep,
   RunbookStepValidation,
   RunbookVariable,
+  StepCondition,
   StepResult,
   StepResultStatus,
 } from '../types/runbook';
@@ -215,11 +217,128 @@ async function resolveVariable(
   throw new Error(`Unsupported variable source for "${variable.name}"`);
 }
 
+// --- DAG helpers ---
+
+/**
+ * Determine if any step uses dependsOn, signaling DAG execution mode.
+ */
+function hasDagDependencies(steps: RunbookStep[]): boolean {
+  return steps.some((s) => Array.isArray(s.dependsOn));
+}
+
+/**
+ * Evaluate a step condition against completed results.
+ * Returns true if the step should execute, false if it should be skipped.
+ */
+function evaluateCondition(condition: StepCondition, resultMap: Map<string, StepResult>): boolean {
+  const refResult = resultMap.get(condition.ref);
+  if (!refResult) return false;
+  return refResult.status === condition.status;
+}
+
+/**
+ * Stringify captured output for injection into the variables map.
+ */
+function stringifyCapture(output: unknown): string {
+  if (output === undefined || output === null) return '';
+  if (typeof output === 'string') return output;
+  return JSON.stringify(output);
+}
+
 export class RunbookExecutor {
   private readonly mcpCallTool: McpCallTool;
 
   public constructor(mcpCallTool: McpCallTool) {
     this.mcpCallTool = mcpCallTool;
+  }
+
+  /**
+   * Execute a single step with retry/skip/abort semantics.
+   * Returns the StepResult and emits lifecycle events.
+   */
+  private async executeStep(
+    step: RunbookStep,
+    variables: Record<string, string>,
+    emit: (event: ExecutionEvent) => void,
+    signal?: AbortSignal,
+  ): Promise<StepResult> {
+    const stepStartTime = Date.now();
+
+    emit({
+      type: 'step-start',
+      stepId: step.id,
+      data: { tool: step.tool, description: step.description },
+      timestamp: stepStartTime,
+    });
+
+    const maxAttempts = step.onError?.action === 'retry' ? step.onError.count + 1 : 1;
+    let attempt = 0;
+
+    while (attempt < maxAttempts) {
+      attempt += 1;
+
+      try {
+        assertNotAborted(signal);
+        const resolvedArgs = resolveArgsWithVariables(step.args, variables);
+        const toolResult = await callWithTimeout(
+          this.mcpCallTool(step.tool, resolvedArgs as Record<string, unknown>),
+          step.timeout,
+        );
+
+        if (!toolResult.success) {
+          throw new Error(toolResult.error ?? `Tool "${step.tool}" returned unsuccessful result`);
+        }
+
+        if (step.validate) {
+          const validation = validateStepResult(toolResult.content, step.validate);
+          if (!validation.valid) {
+            throw new Error(
+              `Validation failed for step "${step.id}" at selector "${step.validate.selector}". Expected ${JSON.stringify(
+                step.validate.expected,
+              )}, got ${JSON.stringify(validation.actual)}`,
+            );
+          }
+        }
+
+        const duration = Date.now() - stepStartTime;
+        const result = createStepResult(step.id, 'completed', duration, toolResult.content);
+
+        emit({
+          type: 'step-complete',
+          stepId: step.id,
+          data: { attempt, duration, output: toolResult.content },
+          timestamp: Date.now(),
+        });
+
+        return result;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown step execution error';
+        const canRetry = step.onError?.action === 'retry' && attempt < maxAttempts;
+
+        emit({
+          type: 'step-error',
+          stepId: step.id,
+          data: { attempt, error: errorMessage, canRetry },
+          timestamp: Date.now(),
+        });
+
+        if (canRetry) {
+          continue;
+        }
+
+        const duration = Date.now() - stepStartTime;
+        if (step.onError?.action === 'skip') {
+          return createStepResult(step.id, 'skipped', duration, undefined, errorMessage);
+        }
+
+        // Fatal: return failed result. Caller decides whether to abort.
+        return createStepResult(step.id, 'failed', duration, undefined, errorMessage);
+      }
+    }
+
+    // Should never reach here, but guard.
+    const duration = Date.now() - stepStartTime;
+    return createStepResult(step.id, 'failed', duration, undefined, 'Exhausted all attempts');
   }
 
   public async execute(runbook: ParsedRunbook, options: ExecutionOptions = {}): Promise<RunbookExecution> {
@@ -251,89 +370,15 @@ export class RunbookExecutor {
         variables[variable.name] = await resolveVariable(variable, overrides, this.mcpCallTool);
       }
 
-      for (const step of runbook.steps) {
-        assertNotAborted(options.abortSignal);
-        const stepStartTime = Date.now();
-        execution.currentStep = step.id;
-
-        emit({
-          type: 'step-start',
-          stepId: step.id,
-          data: { tool: step.tool, description: step.description },
-          timestamp: stepStartTime,
-        });
-
-        const maxAttempts = step.onError?.action === 'retry' ? step.onError.count + 1 : 1;
-        let attempt = 0;
-        let completed = false;
-
-        while (!completed && attempt < maxAttempts) {
-          attempt += 1;
-
-          try {
-            assertNotAborted(options.abortSignal);
-            const resolvedArgs = resolveArgsWithVariables(step.args, variables);
-            const toolResult = await callWithTimeout(
-              this.mcpCallTool(step.tool, resolvedArgs as Record<string, unknown>),
-              step.timeout,
-            );
-
-            if (!toolResult.success) {
-              throw new Error(toolResult.error ?? `Tool "${step.tool}" returned unsuccessful result`);
-            }
-
-            if (step.validate) {
-              const validation = validateStepResult(toolResult.content, step.validate);
-              if (!validation.valid) {
-                throw new Error(
-                  `Validation failed for step "${step.id}" at selector "${step.validate.selector}". Expected ${JSON.stringify(
-                    step.validate.expected,
-                  )}, got ${JSON.stringify(validation.actual)}`,
-                );
-              }
-            }
-
-            const duration = Date.now() - stepStartTime;
-            const result = createStepResult(step.id, 'completed', duration, toolResult.content);
-            execution.stepResults.push(result);
-
-            emit({
-              type: 'step-complete',
-              stepId: step.id,
-              data: { attempt, duration, output: toolResult.content },
-              timestamp: Date.now(),
-            });
-
-            completed = true;
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown step execution error';
-            const canRetry = step.onError?.action === 'retry' && attempt < maxAttempts;
-
-            emit({
-              type: 'step-error',
-              stepId: step.id,
-              data: { attempt, error: errorMessage, canRetry },
-              timestamp: Date.now(),
-            });
-
-            if (canRetry) {
-              continue;
-            }
-
-            const duration = Date.now() - stepStartTime;
-            if (step.onError?.action === 'skip') {
-              execution.stepResults.push(createStepResult(step.id, 'skipped', duration, undefined, errorMessage));
-              completed = true;
-              continue;
-            }
-
-            execution.stepResults.push(createStepResult(step.id, 'failed', duration, undefined, errorMessage));
-            throw new Error(`Step "${step.id}" failed: ${errorMessage}`);
-          }
-        }
+      if (hasDagDependencies(runbook.steps)) {
+        await this.executeDag(runbook.steps, variables, execution, emit, options.abortSignal);
+      } else {
+        await this.executeSequential(runbook.steps, variables, execution, emit, options.abortSignal);
       }
 
-      execution.status = 'completed';
+      if (execution.status !== 'failed') {
+        execution.status = 'completed';
+      }
       execution.currentStep = null;
       execution.completedAt = new Date().toISOString();
 
@@ -358,6 +403,138 @@ export class RunbookExecutor {
 
       execution.currentStep = null;
       return execution;
+    }
+  }
+
+  /**
+   * Original sequential execution path (backward compatible).
+   */
+  private async executeSequential(
+    steps: RunbookStep[],
+    variables: Record<string, string>,
+    execution: RunbookExecution,
+    emit: (event: ExecutionEvent) => void,
+    signal?: AbortSignal,
+  ): Promise<void> {
+    const resultMap = new Map<string, StepResult>();
+
+    for (const step of steps) {
+      assertNotAborted(signal);
+      execution.currentStep = step.id;
+
+      // Condition check
+      if (step.condition) {
+        if (!evaluateCondition(step.condition, resultMap)) {
+          const skipResult = createStepResult(step.id, 'skipped', 0, undefined, 'Condition not met');
+          execution.stepResults.push(skipResult);
+          resultMap.set(step.id, skipResult);
+          continue;
+        }
+      }
+
+      const result = await this.executeStep(step, variables, emit, signal);
+      execution.stepResults.push(result);
+      resultMap.set(step.id, result);
+
+      // Capture output into variables
+      if (step.captureAs && result.status === 'completed' && result.output !== undefined) {
+        variables[step.captureAs] = stringifyCapture(result.output);
+      }
+
+      if (result.status === 'failed') {
+        throw new Error(`Step "${step.id}" failed: ${result.error}`);
+      }
+    }
+  }
+
+  /**
+   * DAG execution: run steps in topological waves, executing
+   * independent steps in parallel within each wave.
+   */
+  private async executeDag(
+    steps: RunbookStep[],
+    variables: Record<string, string>,
+    execution: RunbookExecution,
+    emit: (event: ExecutionEvent) => void,
+    signal?: AbortSignal,
+  ): Promise<void> {
+    const resultMap = new Map<string, StepResult>();
+    const completed = new Set<string>();
+    const remaining = new Map<string, RunbookStep>(steps.map((s) => [s.id, s]));
+    const stepIndexById = new Map<string, number>(steps.map((step, index) => [step.id, index]));
+
+    const getDependencies = (step: RunbookStep): string[] => {
+      if (Array.isArray(step.dependsOn)) {
+        return step.dependsOn;
+      }
+
+      const index = stepIndexById.get(step.id);
+      if (index === undefined || index === 0) {
+        return [];
+      }
+
+      return [steps[index - 1].id];
+    };
+
+    while (remaining.size > 0) {
+      assertNotAborted(signal);
+
+      // Find steps whose dependencies are all satisfied.
+      const ready: RunbookStep[] = [];
+      for (const step of remaining.values()) {
+        const deps = getDependencies(step);
+        if (deps.every((dep) => completed.has(dep))) {
+          ready.push(step);
+        }
+      }
+
+      if (ready.length === 0) {
+        // All remaining steps have unmet deps -- should not happen if
+        // cycle detection passed, but guard against it.
+        const stuck = Array.from(remaining.keys()).join(', ');
+        throw new Error(`DAG deadlock: steps [${stuck}] have unresolvable dependencies`);
+      }
+
+      // Execute the ready wave in parallel.
+      const waveVariables = { ...variables };
+      const wavePromises = ready.map(async (step) => {
+        execution.currentStep = step.id;
+
+        // Condition check
+        if (step.condition) {
+          if (!evaluateCondition(step.condition, resultMap)) {
+            return createStepResult(step.id, 'skipped', 0, undefined, 'Condition not met');
+          }
+        }
+
+        return this.executeStep(step, waveVariables, emit, signal);
+      });
+
+      const waveResults = await Promise.all(wavePromises);
+
+      let hasFatalFailure = false;
+      for (let i = 0; i < waveResults.length; i++) {
+        const result = waveResults[i];
+        const step = ready[i];
+        execution.stepResults.push(result);
+        resultMap.set(step.id, result);
+        completed.add(step.id);
+        remaining.delete(step.id);
+
+        // Capture output
+        if (step.captureAs && result.status === 'completed' && result.output !== undefined) {
+          variables[step.captureAs] = stringifyCapture(result.output);
+        }
+
+        if (result.status === 'failed') {
+          hasFatalFailure = true;
+        }
+      }
+
+      if (hasFatalFailure) {
+        execution.status = 'failed';
+        return;
+      }
     }
   }
 }

@@ -9,7 +9,7 @@ import { useChatStore } from '../store/chatStore';
 import { useAppStore } from '../store/appStore';
 import { eventBridge } from '../lib/eventBridge';
 import { parseActionCommand, executeAction, formatActionResult } from '../lib/actionMode';
-import mcpClient from '../lib/mcpClient';
+import mcpRegistry from '../lib/mcpRegistry';
 
 export function useChat() {
   const mode = useChatStore((s) => s.mode);
@@ -91,7 +91,7 @@ export function useChat() {
         }
 
         try {
-          const result = await executeAction(command, mcpClient);
+          const result = await executeAction(command, mcpRegistry);
           const formatted = formatActionResult(result);
           store.appendStreamChunk(assistantId, formatted);
           store.completeStream(assistantId);

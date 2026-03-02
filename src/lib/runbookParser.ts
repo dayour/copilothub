@@ -10,6 +10,7 @@ import {
   RunbookVariable,
   RunbookVariableSource,
   RunbookVariableType,
+  StepResultStatus,
 } from '../types/runbook';
 
 export interface ParsedRunbook {
@@ -53,6 +54,14 @@ const VALID_CHAIN_CONDITIONS: ReadonlySet<RunbookChainCondition> = new Set<Runbo
   'always',
   'on-success',
   'on-failure',
+]);
+
+const VALID_STEP_RESULT_STATUSES: ReadonlySet<StepResultStatus> = new Set<StepResultStatus>([
+  'pending',
+  'running',
+  'completed',
+  'failed',
+  'skipped',
 ]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -182,6 +191,34 @@ export function validateStep(raw: unknown, index: number): { valid: boolean; err
     errors.push({ field: `${prefix}.description`, message: 'description must be a string when provided' });
   }
 
+  // --- DAG fields ---
+
+  if (raw.dependsOn !== undefined) {
+    if (!Array.isArray(raw.dependsOn) || !raw.dependsOn.every((dep: unknown) => isNonEmptyString(dep))) {
+      errors.push({ field: `${prefix}.dependsOn`, message: 'dependsOn must be an array of non-empty step ID strings' });
+    }
+  }
+
+  if (raw.captureAs !== undefined && !isNonEmptyString(raw.captureAs)) {
+    errors.push({ field: `${prefix}.captureAs`, message: 'captureAs must be a non-empty string when provided' });
+  }
+
+  if (raw.condition !== undefined) {
+    if (!isRecord(raw.condition)) {
+      errors.push({ field: `${prefix}.condition`, message: 'condition must be an object when provided' });
+    } else {
+      if (!isNonEmptyString(raw.condition.ref)) {
+        errors.push({ field: `${prefix}.condition.ref`, message: 'condition.ref is required and must be a non-empty step ID' });
+      }
+      if (!isNonEmptyString(raw.condition.status) || !VALID_STEP_RESULT_STATUSES.has(raw.condition.status as StepResultStatus)) {
+        errors.push({
+          field: `${prefix}.condition.status`,
+          message: `condition.status must be one of: ${Array.from(VALID_STEP_RESULT_STATUSES).join(', ')}`,
+        });
+      }
+    }
+  }
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -222,6 +259,57 @@ export function validateVariable(raw: unknown, index: number): { valid: boolean;
   return { valid: errors.length === 0, errors };
 }
 
+/**
+ * Detect cycles in step-level dependsOn edges.
+ * Returns an array of cycle descriptions (empty if acyclic).
+ */
+export function detectStepDependencyCycles(steps: Array<Record<string, unknown>>): string[] {
+  const cycles: string[] = [];
+  const adj = new Map<string, string[]>();
+  const allIds = new Set<string>();
+
+  for (const step of steps) {
+    const id = step.id as string | undefined;
+    if (!id) continue;
+    allIds.add(id);
+    const deps = Array.isArray(step.dependsOn) ? (step.dependsOn as string[]) : [];
+    adj.set(id, deps.filter((d) => typeof d === 'string'));
+  }
+
+  const visited = new Set<string>();
+  const stack = new Set<string>();
+  const path: string[] = [];
+
+  const dfs = (node: string): void => {
+    visited.add(node);
+    stack.add(node);
+    path.push(node);
+
+    for (const neighbor of adj.get(node) ?? []) {
+      if (!allIds.has(neighbor)) continue; // skip invalid refs (caught elsewhere)
+      if (!visited.has(neighbor)) {
+        dfs(neighbor);
+      } else if (stack.has(neighbor)) {
+        const cycleStart = path.indexOf(neighbor);
+        if (cycleStart >= 0) {
+          cycles.push([...path.slice(cycleStart), neighbor].join(' -> '));
+        }
+      }
+    }
+
+    path.pop();
+    stack.delete(node);
+  };
+
+  for (const id of allIds) {
+    if (!visited.has(id)) {
+      dfs(id);
+    }
+  }
+
+  return cycles;
+}
+
 export function parseRunbook(yamlContent: string): ParseResult {
   const errors: ParseError[] = [];
   let parsed: unknown;
@@ -258,6 +346,7 @@ export function parseRunbook(yamlContent: string): ParseResult {
     errors.push({ field: 'steps', message: 'steps must be an array' });
   } else {
     const seenStepIds = new Set<string>();
+    const seenCaptureNames = new Set<string>();
     parsed.steps.forEach((step, index) => {
       const result = validateStep(step, index);
       errors.push(...result.errors);
@@ -273,7 +362,64 @@ export function parseRunbook(yamlContent: string): ParseResult {
           seenStepIds.add(stepId);
         }
       }
+
+      // DAG: validate captureAs uniqueness
+      if (typeof step === 'object' && step !== null) {
+        const castStep = step as Record<string, unknown>;
+        if (typeof castStep.captureAs === 'string' && castStep.captureAs.length > 0) {
+          if (seenCaptureNames.has(castStep.captureAs)) {
+            errors.push({
+              field: `steps[${index}].captureAs`,
+              message: `duplicate captureAs name "${castStep.captureAs}" is not allowed`,
+            });
+          } else {
+            seenCaptureNames.add(castStep.captureAs);
+          }
+        }
+      }
     });
+
+    // DAG: validate dependsOn references and condition.ref point to known step IDs
+    parsed.steps.forEach((step, index) => {
+      if (typeof step !== 'object' || step === null) return;
+      const castStep = step as Record<string, unknown>;
+
+      if (Array.isArray(castStep.dependsOn)) {
+        for (const dep of castStep.dependsOn) {
+          if (typeof dep === 'string' && !seenStepIds.has(dep)) {
+            errors.push({
+              field: `steps[${index}].dependsOn`,
+              message: `dependsOn references unknown step id "${dep}"`,
+            });
+          }
+          // Self-reference check
+          if (typeof dep === 'string' && typeof castStep.id === 'string' && dep === castStep.id) {
+            errors.push({
+              field: `steps[${index}].dependsOn`,
+              message: `step "${castStep.id}" cannot depend on itself`,
+            });
+          }
+        }
+      }
+
+      if (isRecord(castStep.condition) && typeof (castStep.condition as Record<string, unknown>).ref === 'string') {
+        const condRef = (castStep.condition as Record<string, unknown>).ref as string;
+        if (!seenStepIds.has(condRef)) {
+          errors.push({
+            field: `steps[${index}].condition.ref`,
+            message: `condition.ref references unknown step id "${condRef}"`,
+          });
+        }
+      }
+    });
+
+    // DAG: detect dependency cycles
+    if (errors.length === 0) {
+      const dagCycles = detectStepDependencyCycles(parsed.steps as Array<Record<string, unknown>>);
+      for (const cycle of dagCycles) {
+        errors.push({ field: 'steps', message: `dependency cycle detected: ${cycle}` });
+      }
+    }
   }
 
   const chainValidation = validateChain(parsed.chain);

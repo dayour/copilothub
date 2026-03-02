@@ -79,6 +79,60 @@ describe('actionMode', () => {
     });
   });
 
+  it('@browser supports colon separators', () => {
+    const command = parseActionCommand('@browser: navigate to https://example.com');
+    expect(command).toEqual({
+      tool: 'browser_navigate',
+      args: { url: 'https://example.com' },
+      raw: '@browser: navigate to https://example.com',
+    });
+  });
+
+  it('@terminal allows bare commands without run keyword', () => {
+    const command = parseActionCommand('@terminal ls -la');
+    expect(command).toEqual({
+      tool: 'shell_exec',
+      args: { command: 'ls -la' },
+      raw: '@terminal ls -la',
+    });
+  });
+
+  it('@vscode allows bare path without open keyword', () => {
+    const command = parseActionCommand('@vscode /path/file');
+    expect(command).toEqual({
+      tool: 'vscode_open',
+      args: { path: '/path/file' },
+      raw: '@vscode /path/file',
+    });
+  });
+
+  it('@runbook allows bare name without run keyword', () => {
+    const command = parseActionCommand('@runbook my-runbook');
+    expect(command).toEqual({
+      tool: 'runbook_execute',
+      args: { name: 'my-runbook' },
+      raw: '@runbook my-runbook',
+    });
+  });
+
+  it('@browser click supports quoted selectors', () => {
+    const command = parseActionCommand('@browser click "Save changes"');
+    expect(command).toEqual({
+      tool: 'browser_click',
+      args: { element: 'Save changes', ref: 'Save changes' },
+      raw: '@browser click "Save changes"',
+    });
+  });
+
+  it('@browser fill supports quoted selector and text', () => {
+    const command = parseActionCommand('@browser fill "Email field" "user@test.com"');
+    expect(command).toEqual({
+      tool: 'browser_fill',
+      args: { element: 'Email field', ref: 'Email field', text: 'user@test.com' },
+      raw: '@browser fill "Email field" "user@test.com"',
+    });
+  });
+
   it('returns null for unrecognized command', () => {
     expect(parseActionCommand('@browser dance now')).toBeNull();
   });
@@ -147,6 +201,11 @@ describe('actionMode', () => {
 
   it('returns null for @browser click without selector', () => {
     const cmd = parseActionCommand('@browser click');
+    expect(cmd).toBeNull();
+  });
+
+  it('returns null for @browser navigate with non-http scheme', () => {
+    const cmd = parseActionCommand('@browser navigate to javascript:alert(1)');
     expect(cmd).toBeNull();
   });
 

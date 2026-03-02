@@ -32,7 +32,7 @@ vi.mock('../lib/actionMode', () => ({
   formatActionResult: vi.fn(),
 }));
 
-vi.mock('../lib/mcpClient', () => ({
+vi.mock('../lib/mcpRegistry', () => ({
   default: { callTool: vi.fn() },
 }));
 

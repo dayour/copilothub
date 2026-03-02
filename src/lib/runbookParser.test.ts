@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { parseRunbook, resolveVariableReferences } from './runbookParser';
+import { detectStepDependencyCycles, parseRunbook, resolveVariableReferences } from './runbookParser';
 
 describe('runbookParser', () => {
   afterEach(() => {
@@ -263,5 +263,219 @@ steps:
     const result = parseRunbook(yaml);
     expect(result.success).toBe(true);
     expect(result.runbook!.steps.length).toBe(50);
+  });
+
+  // --- DAG field validation ---
+
+  it('parses steps with dependsOn, captureAs, and condition', () => {
+    const yaml = `
+manifest:
+  name: dag-test
+  version: "1.0"
+  author: Test
+  description: DAG runbook
+  tags: []
+  visibility: personal
+variables: []
+steps:
+  - id: fetch-data
+    tool: shell.exec
+    args:
+      command: curl https://api.example.com
+    captureAs: fetchResult
+  - id: process-data
+    tool: shell.exec
+    args:
+      command: process \${fetchResult}
+    dependsOn: [fetch-data]
+  - id: notify-on-success
+    tool: mcp.invoke
+    args:
+      method: notify
+    dependsOn: [process-data]
+    condition:
+      ref: process-data
+      status: completed
+`;
+    const result = parseRunbook(yaml);
+    expect(result.success).toBe(true);
+    expect(result.runbook!.steps[0].captureAs).toBe('fetchResult');
+    expect(result.runbook!.steps[1].dependsOn).toEqual(['fetch-data']);
+    expect(result.runbook!.steps[2].condition).toEqual({ ref: 'process-data', status: 'completed' });
+  });
+
+  it('rejects dependsOn referencing unknown step', () => {
+    const yaml = `
+manifest:
+  name: Test
+  version: "1.0"
+  author: Test
+  description: Test
+  tags: []
+  visibility: personal
+variables: []
+steps:
+  - id: s1
+    tool: shell.exec
+    args: {}
+    dependsOn: [nonexistent]
+`;
+    const result = parseRunbook(yaml);
+    expect(result.success).toBe(false);
+    expect(result.errors.some((e) => e.message.includes('unknown step id "nonexistent"'))).toBe(true);
+  });
+
+  it('rejects self-referencing dependsOn', () => {
+    const yaml = `
+manifest:
+  name: Test
+  version: "1.0"
+  author: Test
+  description: Test
+  tags: []
+  visibility: personal
+variables: []
+steps:
+  - id: s1
+    tool: shell.exec
+    args: {}
+    dependsOn: [s1]
+`;
+    const result = parseRunbook(yaml);
+    expect(result.success).toBe(false);
+    expect(result.errors.some((e) => e.message.includes('cannot depend on itself'))).toBe(true);
+  });
+
+  it('rejects duplicate captureAs names', () => {
+    const yaml = `
+manifest:
+  name: Test
+  version: "1.0"
+  author: Test
+  description: Test
+  tags: []
+  visibility: personal
+variables: []
+steps:
+  - id: s1
+    tool: shell.exec
+    args: {}
+    captureAs: result
+  - id: s2
+    tool: shell.exec
+    args: {}
+    captureAs: result
+`;
+    const result = parseRunbook(yaml);
+    expect(result.success).toBe(false);
+    expect(result.errors.some((e) => e.message.includes('duplicate captureAs'))).toBe(true);
+  });
+
+  it('rejects invalid condition.status value', () => {
+    const yaml = `
+manifest:
+  name: Test
+  version: "1.0"
+  author: Test
+  description: Test
+  tags: []
+  visibility: personal
+variables: []
+steps:
+  - id: s1
+    tool: shell.exec
+    args: {}
+  - id: s2
+    tool: shell.exec
+    args: {}
+    condition:
+      ref: s1
+      status: invalid_status
+`;
+    const result = parseRunbook(yaml);
+    expect(result.success).toBe(false);
+    expect(result.errors.some((e) => e.field.includes('condition.status'))).toBe(true);
+  });
+
+  it('rejects condition referencing unknown step', () => {
+    const yaml = `
+manifest:
+  name: Test
+  version: "1.0"
+  author: Test
+  description: Test
+  tags: []
+  visibility: personal
+variables: []
+steps:
+  - id: s1
+    tool: shell.exec
+    args: {}
+    condition:
+      ref: ghost
+      status: completed
+`;
+    const result = parseRunbook(yaml);
+    expect(result.success).toBe(false);
+    expect(result.errors.some((e) => e.message.includes('unknown step id "ghost"'))).toBe(true);
+  });
+
+  it('rejects dependsOn with non-string values', () => {
+    const yaml = `
+manifest:
+  name: Test
+  version: "1.0"
+  author: Test
+  description: Test
+  tags: []
+  visibility: personal
+variables: []
+steps:
+  - id: s1
+    tool: shell.exec
+    args: {}
+    dependsOn: [123]
+`;
+    const result = parseRunbook(yaml);
+    expect(result.success).toBe(false);
+    expect(result.errors.some((e) => e.field.includes('dependsOn'))).toBe(true);
+  });
+});
+
+describe('detectStepDependencyCycles', () => {
+  it('returns empty array for acyclic steps', () => {
+    const steps = [
+      { id: 'a', dependsOn: [] },
+      { id: 'b', dependsOn: ['a'] },
+      { id: 'c', dependsOn: ['b'] },
+    ];
+    expect(detectStepDependencyCycles(steps)).toEqual([]);
+  });
+
+  it('detects a simple cycle', () => {
+    const steps = [
+      { id: 'a', dependsOn: ['b'] },
+      { id: 'b', dependsOn: ['a'] },
+    ];
+    const cycles = detectStepDependencyCycles(steps);
+    expect(cycles.length).toBeGreaterThan(0);
+  });
+
+  it('detects a three-node cycle', () => {
+    const steps = [
+      { id: 'a', dependsOn: ['c'] },
+      { id: 'b', dependsOn: ['a'] },
+      { id: 'c', dependsOn: ['b'] },
+    ];
+    const cycles = detectStepDependencyCycles(steps);
+    expect(cycles.length).toBeGreaterThan(0);
+  });
+
+  it('returns empty for steps without dependsOn', () => {
+    const steps = [
+      { id: 'a' },
+      { id: 'b' },
+    ];
+    expect(detectStepDependencyCycles(steps as any)).toEqual([]);
   });
 });

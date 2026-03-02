@@ -10,7 +10,7 @@ import { immer } from 'zustand/middleware/immer';
 // Types
 // ---------------------------------------------------------------------------
 
-export type TabType = 'browser' | 'chat' | 'vscode' | 'terminal' | 'runbook';
+export type TabType = 'browser' | 'chat' | 'vscode' | 'terminal' | 'runbook' | 'demo-calendar' | 'demo-mechanic' | 'demo-coffeeshop' | 'demo-adaptive-cards' | 'demo-wiring' | 'demo-studio-guide' | 'demo-media-assets' | 'demo-animations';
 
 export interface Tab {
   id: string;
@@ -77,6 +77,14 @@ const DEFAULT_TITLES: Record<TabType, string> = {
   vscode: 'VS Code',
   terminal: 'Terminal',
   runbook: 'Runbook Marketplace',
+  'demo-calendar': 'Calendar App',
+  'demo-mechanic': 'Mechanic Shop',
+  'demo-coffeeshop': 'Coffee Shop POS',
+  'demo-adaptive-cards': 'Adaptive Card Builder',
+  'demo-wiring': 'Wiring Diagram',
+  'demo-studio-guide': 'Copilot Studio Guide',
+  'demo-media-assets': 'Media Asset Studio',
+  'demo-animations': 'Animation Studio',
 };
 
 function createTab(type: TabType, url?: string): Tab {

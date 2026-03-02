@@ -149,6 +149,22 @@ export type RunbookStepOnError =
     };
 
 /**
+ * Condition for conditional step execution.
+ * Evaluated against a prior step's result status.
+ */
+export interface StepCondition {
+  /**
+   * Step ID whose result to evaluate.
+   */
+  ref: string;
+
+  /**
+   * Required status for the referenced step.
+   */
+  status: StepResultStatus;
+}
+
+/**
  * Single executable step in a runbook.
  */
 export interface RunbookStep {
@@ -186,6 +202,23 @@ export interface RunbookStep {
    * Human-readable description of what the step does.
    */
   description?: string;
+
+  /**
+   * IDs of steps this step depends on (DAG edges).
+   * If omitted, the step depends on sequential order.
+   */
+  dependsOn?: string[];
+
+  /**
+   * Capture step output into a named variable for downstream steps.
+   */
+  captureAs?: string;
+
+  /**
+   * Conditional execution: step runs only if the referenced step
+   * reached the required status.
+   */
+  condition?: StepCondition;
 }
 
 /**

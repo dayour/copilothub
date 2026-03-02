@@ -7,6 +7,14 @@ import {
   BookOpen,
   Plus,
   X,
+  Calendar,
+  Wrench,
+  Coffee,
+  LayoutTemplate,
+  Zap,
+  Bot,
+  Film,
+  Sparkles,
   type LucideProps,
 } from 'lucide-react';
 import { useTabStore, type Tab, type TabType } from '../store/tabStore';
@@ -23,6 +31,14 @@ const TAB_ICONS: Record<TabType, TabIconComponent> = {
   vscode: Code,
   terminal: Terminal,
   runbook: BookOpen,
+  'demo-calendar': Calendar,
+  'demo-mechanic': Wrench,
+  'demo-coffeeshop': Coffee,
+  'demo-adaptive-cards': LayoutTemplate,
+  'demo-wiring': Zap,
+  'demo-studio-guide': Bot,
+  'demo-media-assets': Film,
+  'demo-animations': Sparkles,
 };
 
 function TypeIcon({ type }: { type: TabType }) {

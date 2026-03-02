@@ -14,6 +14,44 @@ function normalizeInput(input: string): string {
   return input.trim();
 }
 
+function tokenize(input: string): string[] {
+  const tokens: string[] = [];
+  let current = '';
+  let quote: '"' | "'" | null = null;
+
+  for (const char of input) {
+    if (quote) {
+      if (char === quote) {
+        quote = null;
+      } else {
+        current += char;
+      }
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      continue;
+    }
+
+    if (/\s/.test(char)) {
+      if (current.length > 0) {
+        tokens.push(current);
+        current = '';
+      }
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (current.length > 0) {
+    tokens.push(current);
+  }
+
+  return tokens;
+}
+
 function asNonEmpty(value: string | undefined): string | null {
   if (!value) {
     return null;
@@ -23,19 +61,41 @@ function asNonEmpty(value: string | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function isHttpUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 function parseBrowserCommand(commandText: string, raw: string): ActionCommand | null {
-  const navigateMatch = commandText.match(/^navigate\s+to\s+(https?:\/\/\S+)$/i);
-  if (navigateMatch) {
+  const trimmed = commandText.trim();
+  const tokens = tokenize(trimmed);
+  if (tokens.length === 0) {
+    return null;
+  }
+
+  const verb = tokens[0].toLowerCase();
+
+  if (verb === 'navigate' || verb === 'go' || verb === 'goto') {
+    const toIndex = tokens[1]?.toLowerCase() === 'to' ? 2 : 1;
+    const url = asNonEmpty(tokens.slice(toIndex).join(' '));
+    if (!url || !isHttpUrl(url)) {
+      return null;
+    }
+
     return {
       tool: 'browser_navigate',
-      args: { url: navigateMatch[1] },
+      args: { url },
       raw,
     };
   }
 
-  const clickMatch = commandText.match(/^click\s+(.+)$/i);
-  if (clickMatch) {
-    const selector = asNonEmpty(clickMatch[1]);
+  if (verb === 'click') {
+    const selectorStart = tokens[1]?.toLowerCase() === 'on' ? 2 : 1;
+    const selector = asNonEmpty(tokens.slice(selectorStart).join(' '));
     if (!selector) {
       return null;
     }
@@ -47,10 +107,9 @@ function parseBrowserCommand(commandText: string, raw: string): ActionCommand | 
     };
   }
 
-  const fillMatch = commandText.match(/^fill\s+(\S+)\s+(.+)$/i);
-  if (fillMatch) {
-    const selector = asNonEmpty(fillMatch[1]);
-    const text = asNonEmpty(fillMatch[2]);
+  if (verb === 'fill') {
+    const selector = asNonEmpty(tokens[1]);
+    const text = asNonEmpty(tokens.slice(2).join(' '));
     if (!selector || text === null) {
       return null;
     }
@@ -62,7 +121,7 @@ function parseBrowserCommand(commandText: string, raw: string): ActionCommand | 
     };
   }
 
-  if (/^screenshot$/i.test(commandText)) {
+  if (verb === 'screenshot' && tokens.length === 1) {
     return {
       tool: 'browser_screenshot',
       args: {},
@@ -70,7 +129,7 @@ function parseBrowserCommand(commandText: string, raw: string): ActionCommand | 
     };
   }
 
-  if (/^snapshot$/i.test(commandText)) {
+  if (verb === 'snapshot' && tokens.length === 1) {
     return {
       tool: 'browser_snapshot',
       args: {},
@@ -81,13 +140,25 @@ function parseBrowserCommand(commandText: string, raw: string): ActionCommand | 
   return null;
 }
 
-function parseTerminalCommand(commandText: string, raw: string): ActionCommand | null {
-  const runMatch = commandText.match(/^run\s+(.+)$/i);
-  if (!runMatch) {
+function parseTerminalCommand(
+  commandText: string,
+  raw: string,
+  options?: { allowBare?: boolean },
+): ActionCommand | null {
+  const trimmed = commandText.trim();
+  const tokens = tokenize(trimmed);
+  if (tokens.length === 0) {
     return null;
   }
 
-  const command = asNonEmpty(runMatch[1]);
+  let commandTextValue: string | null = null;
+  if (tokens[0].toLowerCase() === 'run') {
+    commandTextValue = tokens.slice(1).join(' ');
+  } else if (options?.allowBare) {
+    commandTextValue = trimmed;
+  }
+
+  const command = asNonEmpty(commandTextValue ?? undefined);
   if (!command) {
     return null;
   }
@@ -99,13 +170,25 @@ function parseTerminalCommand(commandText: string, raw: string): ActionCommand |
   };
 }
 
-function parseVSCodeCommand(commandText: string, raw: string): ActionCommand | null {
-  const openMatch = commandText.match(/^open\s+(.+)$/i);
-  if (!openMatch) {
+function parseVSCodeCommand(
+  commandText: string,
+  raw: string,
+  options?: { allowBare?: boolean },
+): ActionCommand | null {
+  const trimmed = commandText.trim();
+  const tokens = tokenize(trimmed);
+  if (tokens.length === 0) {
     return null;
   }
 
-  const path = asNonEmpty(openMatch[1]);
+  let pathText: string | null = null;
+  if (tokens[0].toLowerCase() === 'open') {
+    pathText = tokens.slice(1).join(' ');
+  } else if (options?.allowBare) {
+    pathText = trimmed;
+  }
+
+  const path = asNonEmpty(pathText ?? undefined);
   if (!path) {
     return null;
   }
@@ -117,13 +200,25 @@ function parseVSCodeCommand(commandText: string, raw: string): ActionCommand | n
   };
 }
 
-function parseRunbookCommand(commandText: string, raw: string): ActionCommand | null {
-  const runMatch = commandText.match(/^run\s+(.+)$/i);
-  if (!runMatch) {
+function parseRunbookCommand(
+  commandText: string,
+  raw: string,
+  options?: { allowBare?: boolean },
+): ActionCommand | null {
+  const trimmed = commandText.trim();
+  const tokens = tokenize(trimmed);
+  if (tokens.length === 0) {
     return null;
   }
 
-  const name = asNonEmpty(runMatch[1]);
+  let nameText: string | null = null;
+  if (tokens[0].toLowerCase() === 'run') {
+    nameText = tokens.slice(1).join(' ');
+  } else if (options?.allowBare) {
+    nameText = trimmed;
+  }
+
+  const name = asNonEmpty(nameText ?? undefined);
   if (!name) {
     return null;
   }
@@ -136,7 +231,7 @@ function parseRunbookCommand(commandText: string, raw: string): ActionCommand | 
 }
 
 function parseMentionCommand(trimmedInput: string): ActionCommand | null {
-  const mentionMatch = trimmedInput.match(/^@(browser|terminal|vscode|runbook)\s+(.+)$/i);
+  const mentionMatch = trimmedInput.match(/^@(browser|terminal|vscode|runbook)\b[:\s]+(.+)$/i);
   if (!mentionMatch) {
     return null;
   }
@@ -149,15 +244,15 @@ function parseMentionCommand(trimmedInput: string): ActionCommand | null {
   }
 
   if (target === 'terminal') {
-    return parseTerminalCommand(commandText, trimmedInput);
+    return parseTerminalCommand(commandText, trimmedInput, { allowBare: true });
   }
 
   if (target === 'vscode') {
-    return parseVSCodeCommand(commandText, trimmedInput);
+    return parseVSCodeCommand(commandText, trimmedInput, { allowBare: true });
   }
 
   if (target === 'runbook') {
-    return parseRunbookCommand(commandText, trimmedInput);
+    return parseRunbookCommand(commandText, trimmedInput, { allowBare: true });
   }
 
   return null;

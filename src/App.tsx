@@ -17,6 +17,14 @@ import { NewTabPage } from './components/NewTabPage';
 import { CommandPalette } from './components/CommandPalette';
 import { CopilotSidebar } from './components/CopilotSidebar';
 import { RunbookMarketplace } from './components/RunbookMarketplace';
+import { CalendarApp } from './components/demos/CalendarApp';
+import { MechanicApp } from './components/demos/MechanicApp';
+import { CoffeeShopApp } from './components/demos/CoffeeShopApp';
+import { AdaptiveCardApp } from './components/demos/AdaptiveCardApp';
+import { WiringDiagramApp } from './components/demos/WiringDiagramApp';
+import { CopilotStudioGuide } from './components/demos/CopilotStudioGuide';
+import { MediaAssetStudio } from './components/demos/MediaAssetStudio';
+import { AnimationStudio } from './components/demos/AnimationStudio';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useEntraAuth } from './hooks/useEntraAuth';
 import { useTheme } from './hooks/useTheme';
@@ -139,6 +147,54 @@ function App() {
                   return (
                     <div key={tab.id} className="w-full h-full overflow-auto" style={{ display: tab.isActive ? 'block' : 'none' }}>
                       <RunbookMarketplace />
+                    </div>
+                  );
+                case 'demo-calendar':
+                  return (
+                    <div key={tab.id} className="w-full h-full overflow-auto" style={{ display: tab.isActive ? 'block' : 'none' }}>
+                      <CalendarApp />
+                    </div>
+                  );
+                case 'demo-mechanic':
+                  return (
+                    <div key={tab.id} className="w-full h-full overflow-auto" style={{ display: tab.isActive ? 'block' : 'none' }}>
+                      <MechanicApp />
+                    </div>
+                  );
+                case 'demo-coffeeshop':
+                  return (
+                    <div key={tab.id} className="w-full h-full overflow-auto" style={{ display: tab.isActive ? 'block' : 'none' }}>
+                      <CoffeeShopApp />
+                    </div>
+                  );
+                case 'demo-adaptive-cards':
+                  return (
+                    <div key={tab.id} className="w-full h-full overflow-hidden" style={{ display: tab.isActive ? 'flex' : 'none', flexDirection: 'column' }}>
+                      <AdaptiveCardApp />
+                    </div>
+                  );
+                case 'demo-wiring':
+                  return (
+                    <div key={tab.id} className="w-full h-full overflow-hidden" style={{ display: tab.isActive ? 'block' : 'none' }}>
+                      <WiringDiagramApp />
+                    </div>
+                  );
+                case 'demo-studio-guide':
+                  return (
+                    <div key={tab.id} className="w-full h-full overflow-auto" style={{ display: tab.isActive ? 'block' : 'none' }}>
+                      <CopilotStudioGuide />
+                    </div>
+                  );
+                case 'demo-media-assets':
+                  return (
+                    <div key={tab.id} className="w-full h-full overflow-hidden" style={{ display: tab.isActive ? 'block' : 'none' }}>
+                      <MediaAssetStudio />
+                    </div>
+                  );
+                case 'demo-animations':
+                  return (
+                    <div key={tab.id} className="w-full h-full overflow-hidden" style={{ display: tab.isActive ? 'block' : 'none' }}>
+                      <AnimationStudio />
                     </div>
                   );
                 default:

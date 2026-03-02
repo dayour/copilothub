@@ -20,7 +20,8 @@ pub fn run() {
             greet,
             sidecar::start_sidecar,
             sidecar::stop_sidecar,
-            sidecar::sidecar_status
+            sidecar::sidecar_status,
+            sidecar::sidecar_health
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

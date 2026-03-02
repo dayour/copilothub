@@ -204,4 +204,178 @@ describe('RunbookExecutor', () => {
     expect(result.status).toBe('failed');
     expect(result.stepResults[0].status).toBe('failed');
   });
+
+  // --- DAG execution tests ---
+
+  it('executes DAG steps in parallel when dependsOn specified', async () => {
+    const runbook = createRunbook([
+      { id: 'root', tool: 'shell.exec', args: { command: 'init' } },
+      { id: 'branch-a', tool: 'shell.exec', args: { command: 'a' }, dependsOn: ['root'] },
+      { id: 'branch-b', tool: 'shell.exec', args: { command: 'b' }, dependsOn: ['root'] },
+      { id: 'join', tool: 'shell.exec', args: { command: 'join' }, dependsOn: ['branch-a', 'branch-b'] },
+    ]);
+
+    const callOrder: string[] = [];
+    const mcpCallTool = vi.fn(async (_name: string, args: Record<string, unknown>) => {
+      callOrder.push(args.command as string);
+      return { success: true, content: `result-${args.command}` };
+    });
+    const executor = new RunbookExecutor(mcpCallTool);
+
+    const result = await executor.execute(runbook);
+
+    expect(result.status).toBe('completed');
+    expect(result.stepResults).toHaveLength(4);
+    // Root must run first
+    expect(callOrder[0]).toBe('init');
+    // branch-a and branch-b should both run before join
+    expect(callOrder.indexOf('join')).toBeGreaterThan(callOrder.indexOf('a'));
+    expect(callOrder.indexOf('join')).toBeGreaterThan(callOrder.indexOf('b'));
+  });
+
+  it('captures step output via captureAs in sequential mode', async () => {
+    const runbook = createRunbook([
+      {
+        id: 'fetch',
+        tool: 'shell.exec',
+        args: { command: 'fetch-data' },
+        captureAs: 'fetchResult',
+      },
+      {
+        id: 'use',
+        tool: 'shell.exec',
+        args: { command: 'process ${fetchResult}' },
+      },
+    ]);
+
+    const mcpCallTool = vi.fn()
+      .mockResolvedValueOnce({ success: true, content: 'captured-value' })
+      .mockResolvedValueOnce({ success: true, content: 'ok' });
+    const executor = new RunbookExecutor(mcpCallTool);
+
+    const result = await executor.execute(runbook);
+
+    expect(result.status).toBe('completed');
+    // The second step should have received the captured variable
+    expect(mcpCallTool).toHaveBeenCalledWith('shell.exec', { command: 'process captured-value' });
+  });
+
+  it('captures step output via captureAs in DAG mode', async () => {
+    const runbook = createRunbook([
+      {
+        id: 'fetch',
+        tool: 'shell.exec',
+        args: { command: 'fetch-data' },
+        captureAs: 'fetchResult',
+      },
+      {
+        id: 'use',
+        tool: 'shell.exec',
+        args: { command: 'process ${fetchResult}' },
+        dependsOn: ['fetch'],
+      },
+    ]);
+
+    const mcpCallTool = vi.fn()
+      .mockResolvedValueOnce({ success: true, content: 'dag-captured' })
+      .mockResolvedValueOnce({ success: true, content: 'ok' });
+    const executor = new RunbookExecutor(mcpCallTool);
+
+    const result = await executor.execute(runbook);
+
+    expect(result.status).toBe('completed');
+    expect(mcpCallTool).toHaveBeenCalledWith('shell.exec', { command: 'process dag-captured' });
+  });
+
+  it('skips step when condition is not met', async () => {
+    const runbook = createRunbook([
+      { id: 's1', tool: 'shell.exec', args: { command: 'first' } },
+      {
+        id: 'only-on-failure',
+        tool: 'shell.exec',
+        args: { command: 'recovery' },
+        condition: { ref: 's1', status: 'failed' },
+      },
+    ]);
+
+    const mcpCallTool = vi.fn().mockResolvedValue({ success: true, content: 'ok' });
+    const executor = new RunbookExecutor(mcpCallTool);
+
+    const result = await executor.execute(runbook);
+
+    expect(result.status).toBe('completed');
+    expect(result.stepResults).toHaveLength(2);
+    expect(result.stepResults[0].status).toBe('completed');
+    expect(result.stepResults[1].status).toBe('skipped');
+    // The conditional step should never have been called
+    expect(mcpCallTool).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs step when condition is met', async () => {
+    const runbook = createRunbook([
+      { id: 's1', tool: 'shell.exec', args: { command: 'first' } },
+      {
+        id: 'after-success',
+        tool: 'shell.exec',
+        args: { command: 'post' },
+        condition: { ref: 's1', status: 'completed' },
+      },
+    ]);
+
+    const mcpCallTool = vi.fn().mockResolvedValue({ success: true, content: 'ok' });
+    const executor = new RunbookExecutor(mcpCallTool);
+
+    const result = await executor.execute(runbook);
+
+    expect(result.status).toBe('completed');
+    expect(result.stepResults).toHaveLength(2);
+    expect(result.stepResults[0].status).toBe('completed');
+    expect(result.stepResults[1].status).toBe('completed');
+    expect(mcpCallTool).toHaveBeenCalledTimes(2);
+  });
+
+  it('DAG execution fails and stops when a required step fails', async () => {
+    const runbook = createRunbook([
+      { id: 'root', tool: 'shell.exec', args: { command: 'init' } },
+      { id: 'bad', tool: 'shell.exec', args: { command: 'fail' }, dependsOn: ['root'] },
+      { id: 'after', tool: 'shell.exec', args: { command: 'never' }, dependsOn: ['bad'] },
+    ]);
+
+    const mcpCallTool = vi.fn()
+      .mockResolvedValueOnce({ success: true, content: 'ok' })
+      .mockResolvedValueOnce({ success: false, content: null, error: 'boom' });
+    const executor = new RunbookExecutor(mcpCallTool);
+
+    const result = await executor.execute(runbook);
+
+    expect(result.status).toBe('failed');
+    // 'after' should never execute since 'bad' failed
+    expect(mcpCallTool).toHaveBeenCalledTimes(2);
+  });
+
+  it('captures object output as JSON string', async () => {
+    const runbook = createRunbook([
+      {
+        id: 'fetch',
+        tool: 'shell.exec',
+        args: { command: 'get' },
+        captureAs: 'data',
+      },
+      {
+        id: 'use',
+        tool: 'shell.exec',
+        args: { command: 'process ${data}' },
+      },
+    ]);
+
+    const mcpCallTool = vi.fn()
+      .mockResolvedValueOnce({ success: true, content: { key: 'value' } })
+      .mockResolvedValueOnce({ success: true, content: 'ok' });
+    const executor = new RunbookExecutor(mcpCallTool);
+
+    const result = await executor.execute(runbook);
+
+    expect(result.status).toBe('completed');
+    expect(mcpCallTool).toHaveBeenCalledWith('shell.exec', { command: 'process {"key":"value"}' });
+  });
 });

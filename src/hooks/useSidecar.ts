@@ -13,21 +13,33 @@ export function useSidecar() {
     let mounted = true;
 
     async function initSidecar() {
+      let sidecarStarted = false;
       try {
         setSidecarStatus('starting');
 
         // Start the sidecar via Tauri command
         const result = await eventBridge.startSidecar();
+        sidecarStarted = true;
         logger.info('sidecar', 'Sidecar started', result);
-
-        if (!mounted) return;
-        setSidecarStatus('running');
 
         // Connect MCP client to the running sidecar
         await mcpClient.connect();
+
+        if (!mounted) {
+          mcpClient.disconnect();
+          void eventBridge.stopSidecar().catch(() => undefined);
+          return;
+        }
+
+        setSidecarStatus('running');
         logger.info('sidecar', 'MCP client connected');
       } catch (err) {
         logger.warn('sidecar', 'Sidecar startup failed (expected without binary)', err);
+        if (sidecarStarted) {
+          void eventBridge
+            .stopSidecar()
+            .catch((stopError) => logger.debug('sidecar', 'Sidecar stop after startup failure failed', stopError));
+        }
         if (mounted) setSidecarStatus('stopped');
       }
     }
@@ -44,6 +56,7 @@ export function useSidecar() {
     return () => {
       mounted = false;
       mcpClient.disconnect();
+      void eventBridge.stopSidecar().catch((err) => logger.debug('sidecar', 'Sidecar stop during cleanup failed', err));
     };
   }, [setSidecarStatus]);
 }

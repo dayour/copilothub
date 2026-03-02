@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Search, MessageSquare, Terminal, Code, BookOpen } from 'lucide-react';
+import { Search, MessageSquare, Terminal, Code, BookOpen, Calendar, Wrench, Coffee, Zap, Bot, LayoutTemplate, Film, Sparkles } from 'lucide-react';
 import { useTabStore } from '../store/tabStore';
 import { APP_CONFIG } from '../lib/config';
 
@@ -111,6 +111,82 @@ export function NewTabPage({ tabId }: { tabId: string }) {
           >
             <BookOpen className="h-4 w-4" />
             <span>Runbooks</span>
+          </button>
+        </div>
+
+        <div className="mt-4 grid w-full max-w-[760px] grid-cols-1 gap-3 sm:grid-cols-3">
+          <button
+            type="button"
+            onClick={() => addTab('demo-calendar')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <Calendar className="h-4 w-4" />
+            <span>Calendar App</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => addTab('demo-mechanic')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <Wrench className="h-4 w-4" />
+            <span>Mechanic Shop</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => addTab('demo-coffeeshop')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <Coffee className="h-4 w-4" />
+            <span>Coffee Shop POS</span>
+          </button>
+        </div>
+
+        <div className="mt-3 grid w-full max-w-[760px] grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <button
+            type="button"
+            onClick={() => addTab('demo-wiring')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <Zap className="h-4 w-4" />
+            <span>Wiring Diagram</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => addTab('demo-studio-guide')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <Bot className="h-4 w-4" />
+            <span>Studio Guide</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => addTab('demo-adaptive-cards')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <LayoutTemplate className="h-4 w-4" />
+            <span>Adaptive Cards</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => addTab('demo-media-assets')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <Film className="h-4 w-4" />
+            <span>Media Assets</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => addTab('demo-animations')}
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-surface-hover)]"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span>Animations</span>
           </button>
         </div>
 
