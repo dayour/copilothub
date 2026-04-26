@@ -1,0 +1,10 @@
+E:\copilothub\target/vscode-local-check\debug\deps\tauri_plugin_dialog-531663c3f7388746.d: C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\lib.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\desktop.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\commands.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\error.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\models.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\init-iife.js
+
+E:\copilothub\target/vscode-local-check\debug\deps\libtauri_plugin_dialog-531663c3f7388746.rmeta: C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\lib.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\desktop.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\commands.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\error.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\models.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\init-iife.js
+
+C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\lib.rs:
+C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\desktop.rs:
+C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\commands.rs:
+C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\error.rs:
+C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\models.rs:
+C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\tauri-plugin-dialog-2.6.0\src\init-iife.js:

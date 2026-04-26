@@ -1,0 +1,391 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "accent",
+      "bleed": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "DAYOUR Protocol",
+          "size": "extraLarge",
+          "weight": "bolder",
+          "color": "light",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "da your protocol -- CopilotHub Hackathon Execution Framework",
+          "size": "medium",
+          "color": "light",
+          "spacing": "none",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "v1.0 | ACTIVE",
+          "size": "small",
+          "weight": "bolder",
+          "color": "good",
+          "spacing": "small"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "PROTOCOL OVERVIEW",
+          "size": "medium",
+          "weight": "bolder",
+          "color": "accent"
+        },
+        {
+          "type": "TextBlock",
+          "text": "The DAYOUR Protocol is a 3-lane competitive execution framework for the CopilotHub hackathon. Three independent lanes -- Orchestrator (O), Autonomous (A), and Developer-led (D) -- race to deliver the same backlog under a strict Fluent 2 design mandate. Every UI deliverable must conform to Microsoft Fluent 2 design tokens, components, and layout patterns. Non-compliant work is rejected at the exit gate.",
+          "wrap": true,
+          "spacing": "small"
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "FIVE PILLARS",
+      "size": "medium",
+      "weight": "bolder",
+      "color": "accent",
+      "spacing": "large"
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "small",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Container",
+              "style": "emphasis",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "3-Lane Protocol",
+                  "size": "small",
+                  "weight": "bolder",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "O / A / D lanes with cross-channel feedback",
+                  "size": "small",
+                  "spacing": "small",
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Container",
+              "style": "emphasis",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Scoring Rubric",
+                  "size": "small",
+                  "weight": "bolder",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "7 dimensions, Fluent 2 at 20%",
+                  "size": "small",
+                  "spacing": "small",
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Container",
+              "style": "emphasis",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Backlog DAG",
+                  "size": "small",
+                  "weight": "bolder",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "22 items, 8 parallelism windows",
+                  "size": "small",
+                  "spacing": "small",
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "small",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Container",
+              "style": "emphasis",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Bugbash Pattern",
+                  "size": "small",
+                  "weight": "bolder",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Dual-phase validation, Fluent 2 audit",
+                  "size": "small",
+                  "spacing": "small",
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Container",
+              "style": "emphasis",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "63 Dispatches",
+                  "size": "small",
+                  "weight": "bolder",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "8 phases, 13 agents, 5 models",
+                  "size": "small",
+                  "spacing": "small",
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": []
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "KEY METRICS",
+      "size": "medium",
+      "weight": "bolder",
+      "color": "accent",
+      "spacing": "large"
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "small",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Container",
+              "style": "accent",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "3",
+                  "size": "extraLarge",
+                  "weight": "bolder",
+                  "color": "light",
+                  "horizontalAlignment": "center"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Competing Lanes",
+                  "size": "small",
+                  "color": "light",
+                  "horizontalAlignment": "center",
+                  "spacing": "none"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Container",
+              "style": "accent",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "22",
+                  "size": "extraLarge",
+                  "weight": "bolder",
+                  "color": "light",
+                  "horizontalAlignment": "center"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Backlog Items",
+                  "size": "small",
+                  "color": "light",
+                  "horizontalAlignment": "center",
+                  "spacing": "none"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Container",
+              "style": "accent",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "63",
+                  "size": "extraLarge",
+                  "weight": "bolder",
+                  "color": "light",
+                  "horizontalAlignment": "center"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Agent Dispatches",
+                  "size": "small",
+                  "color": "light",
+                  "horizontalAlignment": "center",
+                  "spacing": "none"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Container",
+              "style": "accent",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "134",
+                  "size": "extraLarge",
+                  "weight": "bolder",
+                  "color": "light",
+                  "horizontalAlignment": "center"
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Fluent 2 References",
+                  "size": "small",
+                  "color": "light",
+                  "horizontalAlignment": "center",
+                  "spacing": "none"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "style": "good",
+      "spacing": "large",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "PROTOCOL STATUS: All 5 documents delivered. Ready for Phase 1 execution.",
+          "weight": "bolder",
+          "wrap": true
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "spacing": "medium",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "DESIGN MANDATE: All UI deliverables must conform to Microsoft Fluent 2. Non-compliant work is rejected at the exit gate.",
+          "weight": "bolder",
+          "wrap": true
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "3-Lane Protocol",
+      "url": "https://github.com/anthropics/copilothub/docs/dayour-protocol-3lane.md"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "Scoring Rubric",
+      "url": "https://github.com/anthropics/copilothub/docs/dayour-protocol-scoring.md"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "Backlog DAG",
+      "url": "https://github.com/anthropics/copilothub/docs/dayour-protocol-backlog.md"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "Bugbash Pattern",
+      "url": "https://github.com/anthropics/copilothub/docs/dayour-protocol-bugbash.md"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "63 Dispatches",
+      "url": "https://github.com/anthropics/copilothub/docs/dayour-protocol-dispatches.md"
+    }
+  ]
+}

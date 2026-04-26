@@ -1,0 +1,514 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Synthesis Scoring Rubric",
+          "size": "Large",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "DAYOUR Protocol | Pillar 2 of 5",
+          "size": "Medium",
+          "isSubtle": true,
+          "spacing": "Small",
+          "wrap": true
+        }
+      ],
+      "bleed": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Composite Formula",
+      "size": "Medium",
+      "weight": "Bolder",
+      "spacing": "Large",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Composite = (A x 0.20) + (B x 0.20) + (C x 0.15) + (D x 0.20) + (E x 0.10) + (F x 0.10) + (G x 0.05)",
+      "fontType": "Monospace",
+      "wrap": true,
+      "spacing": "Small"
+    },
+    {
+      "type": "TextBlock",
+      "text": "All dimensions scored 1--10. Composite ranges from 1.00 to 10.00.",
+      "isSubtle": true,
+      "size": "Small",
+      "spacing": "Small",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Scoring Dimensions",
+      "size": "Medium",
+      "weight": "Bolder",
+      "spacing": "Large",
+      "wrap": true
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Medium",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "20%",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "color": "Accent"
+            },
+            {
+              "type": "TextBlock",
+              "text": "A. Code Quality",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "TypeScript discipline, error handling, code organization",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Center",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "20%",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "color": "Accent"
+            },
+            {
+              "type": "TextBlock",
+              "text": "B. Fluent 2 Design",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Color tokens, typography, spacing, elevation, motion, density",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Center",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "15%",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "color": "Accent"
+            },
+            {
+              "type": "TextBlock",
+              "text": "C. UX Coherence",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Visual consistency, interaction design, accessibility",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Center",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "20%",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "color": "Accent"
+            },
+            {
+              "type": "TextBlock",
+              "text": "D. Architecture Fit",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "MCP patterns, Zustand stores, Tauri IPC, separation of concerns",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Center",
+              "wrap": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Medium",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "10%",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "color": "Accent"
+            },
+            {
+              "type": "TextBlock",
+              "text": "E. Performance",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Bundle size, code splitting, memory, frame rate",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Center",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "10%",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "color": "Accent"
+            },
+            {
+              "type": "TextBlock",
+              "text": "F. Innovation",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Novel approaches, cross-lane learning, forward-compatible design",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Center",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "5%",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "color": "Accent"
+            },
+            {
+              "type": "TextBlock",
+              "text": "G. Completeness",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Feature coverage, documentation, edge cases, test parity",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Center",
+              "wrap": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "style": "accent",
+      "spacing": "Large",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Fluent 2 Design Compliance -- Dedicated 20% Dimension",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "Fluent 2 Design Compliance is a DEDICATED 20% dimension. Covers: color tokens, typography, spacing grid, elevation, motion, density, border radius, component patterns. Any hardcoded hex color not mapped through a Fluent 2 token is a compliance violation.",
+          "wrap": true,
+          "size": "Small"
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "Automated Quality Gates",
+      "size": "Medium",
+      "weight": "Bolder",
+      "spacing": "Large",
+      "wrap": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "Binary PASS/FAIL checks that run before human scoring. Failures incur automatic penalties or block scoring.",
+      "isSubtle": true,
+      "size": "Small",
+      "spacing": "Small",
+      "wrap": true
+    },
+    {
+      "type": "FactSet",
+      "spacing": "Medium",
+      "facts": [
+        {
+          "title": "tsc --noEmit",
+          "value": "PASS/FAIL -- Zero errors required. FAIL blocks scoring."
+        },
+        {
+          "title": "vitest run",
+          "value": "Min 80% pass rate. FAIL = -2.0 composite penalty."
+        },
+        {
+          "title": "Regression Check",
+          "value": "All pre-existing tests must pass. FAIL blocks scoring."
+        },
+        {
+          "title": "Bundle Size Delta",
+          "value": "Warn if >10% increase. -0.5 penalty per 10% over threshold."
+        },
+        {
+          "title": "Fluent 2 Audit",
+          "value": "No hardcoded hex colors. Each violation = -0.1 from Dim B."
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "Merge Decision Matrix",
+      "size": "Medium",
+      "weight": "Bolder",
+      "spacing": "Large",
+      "wrap": true
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Medium",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Condition",
+              "weight": "Bolder",
+              "size": "Small"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "minWidth": "120px",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Strategy",
+              "weight": "Bolder",
+              "size": "Small"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "separator": true,
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": ">= 8.0, others < 6.0",
+              "size": "Small",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "minWidth": "120px",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Winner-Take-All",
+              "size": "Small",
+              "weight": "Bolder",
+              "color": "Good",
+              "wrap": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "separator": true,
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Two lanes >= 7.0",
+              "size": "Small",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "minWidth": "120px",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Hybrid Merge",
+              "size": "Small",
+              "weight": "Bolder",
+              "color": "Accent",
+              "wrap": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "separator": true,
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "All >= 6.0",
+              "size": "Small",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "minWidth": "120px",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Best-of-Breed",
+              "size": "Small",
+              "weight": "Bolder",
+              "color": "Accent",
+              "wrap": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "separator": true,
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "All < 5.0",
+              "size": "Small",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "minWidth": "120px",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Restart",
+              "size": "Small",
+              "weight": "Bolder",
+              "color": "Attention",
+              "wrap": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Full Scoring Rubric",
+      "url": "https://github.com/user/copilothub/blob/main/docs/scoring-rubric.md"
+    }
+  ]
+}

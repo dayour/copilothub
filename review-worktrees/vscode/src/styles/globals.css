@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/* CopilotHub Theme Tokens */
+@theme {
+  /* Edge Dark theme (default) */
+  --color-surface-primary: #1e1e1e;
+  --color-surface-secondary: #252526;
+  --color-surface-tertiary: #2d2d30;
+  --color-surface-elevated: #333337;
+  --color-surface-hover: #3e3e42;
+  --color-surface-active: #505050;
+
+  --color-border-default: #3e3e42;
+  --color-border-subtle: #2d2d30;
+  --color-border-strong: #505050;
+  --color-border-focus: #0078d4;
+
+  --color-text-primary: #cccccc;
+  --color-text-secondary: #9d9d9d;
+  --color-text-muted: #6e6e6e;
+  --color-text-inverse: #1e1e1e;
+
+  --color-accent-primary: #0078d4;
+  --color-accent-hover: #1a8ae8;
+  --color-accent-active: #005a9e;
+
+  --color-enterprise-blue: #0063b1;
+  --color-enterprise-blue-light: #2b88d8;
+  --color-enterprise-blue-dark: #004578;
+
+  --color-status-success: #4ec9b0;
+  --color-status-warning: #dcdcaa;
+  --color-status-error: #f44747;
+  --color-status-info: #569cd6;
+
+  --color-tab-active: #1e1e1e;
+  --color-tab-inactive: #2d2d30;
+  --color-tab-hover: #333337;
+
+  --font-family-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-family-mono: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+
+  --spacing-tab-height: 36px;
+  --spacing-titlebar-height: 32px;
+  --spacing-sidebar-width: 280px;
+  --spacing-address-bar-height: 40px;
+}
+
+/* Base reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: var(--font-family-sans);
+  background-color: var(--color-surface-primary);
+  color: var(--color-text-primary);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar (Edge-like) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-hover);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-surface-active);
+}
+
+/* Titlebar drag region */
+[data-tauri-drag-region] {
+  -webkit-app-region: drag;
+}
+
+[data-tauri-drag-region] button,
+[data-tauri-drag-region] input {
+  -webkit-app-region: no-drag;
+}

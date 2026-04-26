@@ -1,0 +1,546 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "bleed": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Dual Bugbash Validation",
+          "size": "Large",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "DAYOUR Protocol | Pillar 4 of 5",
+          "size": "Medium",
+          "isSubtle": true,
+          "spacing": "Small",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "DUAL PHASE",
+          "weight": "Bolder",
+          "color": "Light",
+          "spacing": "Small",
+          "wrap": true
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "Phase Overview",
+      "size": "Medium",
+      "weight": "Bolder",
+      "spacing": "Large",
+      "wrap": true
+    },
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Container",
+              "style": "good",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Phase 1: Self-Validation",
+                  "weight": "Bolder",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Each lane validates its own output",
+                  "isSubtle": true,
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Container",
+              "style": "attention",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Phase 2: Cross-Lane Adversarial",
+                  "weight": "Bolder",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "Each lane breaks the other two",
+                  "isSubtle": true,
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "spacing": "Large",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Automated Gates",
+          "size": "Medium",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "tsc --noEmit",
+              "value": "Zero errors"
+            },
+            {
+              "title": "npm run test",
+              "value": "All pass"
+            },
+            {
+              "title": "npm run build",
+              "value": "Success"
+            },
+            {
+              "title": "No regressions",
+              "value": "Pre-existing tests pass"
+            },
+            {
+              "title": "Fluent 2 audit",
+              "value": "No hardcoded hex colors"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "Fluent 2 Compliance Checks",
+      "size": "Medium",
+      "weight": "Bolder",
+      "spacing": "Large",
+      "wrap": true
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        {
+          "title": "Color tokens only",
+          "value": "No hardcoded hex"
+        },
+        {
+          "title": "Spacing grid",
+          "value": "4px multiples"
+        },
+        {
+          "title": "Typography",
+          "value": "Segoe UI Variable type ramp"
+        },
+        {
+          "title": "Shadow tokens",
+          "value": "No arbitrary box-shadow"
+        },
+        {
+          "title": "Border radius tokens",
+          "value": "Fluent 2 radius values"
+        },
+        {
+          "title": "Motion tokens",
+          "value": "Duration/easing tokens"
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "Severity Matrix",
+      "size": "Medium",
+      "weight": "Bolder",
+      "spacing": "Large",
+      "wrap": true
+    },
+    {
+      "type": "Table",
+      "gridStyle": "accent",
+      "firstRowAsHeader": true,
+      "showGridLines": true,
+      "columns": [
+        { "width": 1 },
+        { "width": 2 },
+        { "width": 1 },
+        { "width": 2 }
+      ],
+      "rows": [
+        {
+          "type": "TableRow",
+          "style": "accent",
+          "cells": [
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Severity",
+                  "weight": "Bolder",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Description",
+                  "weight": "Bolder",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Response",
+                  "weight": "Bolder",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Fix Requirement",
+                  "weight": "Bolder",
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Critical",
+                  "weight": "Bolder",
+                  "color": "Attention",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "App crash / data loss",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Immediate",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Must fix, blocks merge",
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "High",
+                  "weight": "Bolder",
+                  "color": "Warning",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Feature non-functional",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "1 hour",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Must fix before merge",
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Medium",
+                  "weight": "Bolder",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Degraded experience",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "2 hours",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Should fix",
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Low",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Cosmetic / minor",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "No SLA",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "TableCell",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Fix if time permits",
+                  "wrap": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "Cross-Lane Assignment",
+      "size": "Medium",
+      "weight": "Bolder",
+      "spacing": "Large",
+      "wrap": true
+    },
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "O --> A+D",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "A --> O+D",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "D --> O+A",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center",
+              "wrap": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "style": "attention",
+      "spacing": "Large",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Triage Decision",
+          "size": "Medium",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "REVERT if: 2+ Critical bugs OR 5+ High bugs with fix > 50% remaining time. Otherwise: FIX-FORWARD with time-boxed window.",
+          "wrap": true
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "Sign-Off Gates",
+      "size": "Medium",
+      "weight": "Bolder",
+      "spacing": "Large",
+      "wrap": true
+    },
+    {
+      "type": "FactSet",
+      "facts": [
+        {
+          "title": "Critical/High bugs",
+          "value": "All Critical/High resolved"
+        },
+        {
+          "title": "Test suite",
+          "value": "Full test suite passes"
+        },
+        {
+          "title": "TypeScript",
+          "value": "tsc clean"
+        },
+        {
+          "title": "Lane approval",
+          "value": "2-of-3 lane approval"
+        },
+        {
+          "title": "Architecture",
+          "value": "Architecture integrity confirmed"
+        },
+        {
+          "title": "Fluent 2",
+          "value": "Fluent 2 audit passes"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View Bugbash Pattern",
+      "url": "https://github.com/user/copilothub/blob/main/docs/bugbash-pattern.md"
+    }
+  ]
+}

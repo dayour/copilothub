@@ -1,0 +1,507 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Implementation Backlog DAG",
+                  "size": "Large",
+                  "weight": "Bolder",
+                  "wrap": true
+                },
+                {
+                  "type": "TextBlock",
+                  "text": "DAYOUR Protocol | Pillar 3 of 5",
+                  "isSubtle": true,
+                  "spacing": "None",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "verticalContentAlignment": "Center",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "22 ITEMS",
+                  "weight": "Bolder",
+                  "color": "Accent",
+                  "horizontalAlignment": "Right"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "SUMMARY",
+      "size": "Small",
+      "weight": "Bolder",
+      "isSubtle": true,
+      "spacing": "Medium"
+    },
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "22",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center"
+            },
+            {
+              "type": "TextBlock",
+              "text": "Total Items",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Center",
+              "spacing": "None"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "6",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center"
+            },
+            {
+              "type": "TextBlock",
+              "text": "Areas",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Center",
+              "spacing": "None"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "8",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center"
+            },
+            {
+              "type": "TextBlock",
+              "text": "Parallelism Windows",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Center",
+              "spacing": "None",
+              "wrap": true
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "5",
+              "size": "ExtraLarge",
+              "weight": "Bolder",
+              "horizontalAlignment": "Center"
+            },
+            {
+              "type": "TextBlock",
+              "text": "Critical Path Length",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Center",
+              "spacing": "None",
+              "wrap": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "spacing": "Medium",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "CRITICAL PATH",
+          "size": "Small",
+          "weight": "Bolder",
+          "isSubtle": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "ai-provider-abstraction --> chat-store-multi-provider --> streaming-renderer --> comparison-view --> integration-tests",
+          "fontType": "Monospace",
+          "color": "Attention",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "5 items | Total weight: 13 units (S=1, M=2, L=3)",
+          "size": "Small",
+          "isSubtle": true,
+          "spacing": "Small"
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "BACKLOG TABLE",
+      "size": "Small",
+      "weight": "Bolder",
+      "isSubtle": true,
+      "spacing": "Medium"
+    },
+    {
+      "type": "Table",
+      "firstRowAsHeader": true,
+      "showGridLines": true,
+      "gridStyle": "accent",
+      "columns": [
+        { "width": 40 },
+        { "width": 200 },
+        { "width": 40 },
+        { "width": 50 },
+        { "width": 60 }
+      ],
+      "rows": [
+        {
+          "type": "TableRow",
+          "style": "accent",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ID", "weight": "Bolder", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "Title", "weight": "Bolder", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "Size", "weight": "Bolder", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "Lane", "weight": "Bolder", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "Deps", "weight": "Bolder", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "1", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ai-provider-abstraction", "size": "Small", "weight": "Bolder", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "none", "size": "Small", "isSubtle": true }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "2", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "openai-provider", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "O", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "1", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "3", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "anthropic-provider", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "A", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "1", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "4", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "dayour-provider", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "D", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "1", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "5", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "chat-store-multi-provider", "size": "Small", "weight": "Bolder", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "L", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "1", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "6", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "provider-switch-ui", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "5", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "7", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "streaming-renderer", "size": "Small", "weight": "Bolder", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "5", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "8", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "comparison-view", "size": "Small", "weight": "Bolder", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "L", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "6, 7", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "9", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "mcp-provider-adapters", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "1", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "10", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "advanced-action-routing", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "9", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "11", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ai-runbook-generation", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "L", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "1", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "12", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "entra-sso-completion", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "L", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "none", "size": "Small", "isSubtle": true }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "13", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "keyvault-integration", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "L", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "12", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "14", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "secure-provider-config", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "1, 13", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "15", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "bundle-optimization", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "none", "size": "Small", "isSubtle": true }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "16", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "render-perf", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "none", "size": "Small", "isSubtle": true }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "17", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "sidecar-perf", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "none", "size": "Small", "isSubtle": true }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "18", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "provider-tests", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "2, 3, 4", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "19", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "integration-tests", "size": "Small", "weight": "Bolder", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "L", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "8", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "20", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "e2e-smoke", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "L", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "none", "size": "Small", "isSubtle": true }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "21", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "api-docs", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "S", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "1", "size": "Small" }] }
+          ]
+        },
+        {
+          "type": "TableRow",
+          "cells": [
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "22", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "msix-polish", "size": "Small", "wrap": true }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "M", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "ALL", "size": "Small" }] },
+            { "type": "TableCell", "items": [{ "type": "TextBlock", "text": "none", "size": "Small", "isSubtle": true }] }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "AREA BREAKDOWN",
+      "size": "Small",
+      "weight": "Bolder",
+      "isSubtle": true,
+      "spacing": "Medium"
+    },
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            { "type": "TextBlock", "text": "Multi-Provider Chat", "size": "Small", "weight": "Bolder" },
+            { "type": "TextBlock", "text": "8 items", "size": "Small", "isSubtle": true, "spacing": "None" }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            { "type": "TextBlock", "text": "Enhanced MCP", "size": "Small", "weight": "Bolder" },
+            { "type": "TextBlock", "text": "3 items", "size": "Small", "isSubtle": true, "spacing": "None" }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            { "type": "TextBlock", "text": "Enterprise", "size": "Small", "weight": "Bolder" },
+            { "type": "TextBlock", "text": "3 items", "size": "Small", "isSubtle": true, "spacing": "None" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Small",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            { "type": "TextBlock", "text": "Performance", "size": "Small", "weight": "Bolder" },
+            { "type": "TextBlock", "text": "3 items", "size": "Small", "isSubtle": true, "spacing": "None" }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            { "type": "TextBlock", "text": "Testing", "size": "Small", "weight": "Bolder" },
+            { "type": "TextBlock", "text": "3 items", "size": "Small", "isSubtle": true, "spacing": "None" }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            { "type": "TextBlock", "text": "Docs/Packaging", "size": "Small", "weight": "Bolder" },
+            { "type": "TextBlock", "text": "2 items", "size": "Small", "isSubtle": true, "spacing": "None" }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "Open Backlog DAG",
+      "url": "https://github.com/user/copilothub/blob/main/docs/backlog-dag.md"
+    }
+  ]
+}

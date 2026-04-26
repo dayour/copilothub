@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "copilothub",
+  "version": "1.0.0",
+  "identifier": "com.dayour.copilothub",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "CopilotHub",
+        "width": 1400,
+        "height": 900,
+        "decorations": false,
+        "transparent": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; connect-src 'self' https: wss: ws: http://localhost:*; frame-src 'self' https: http:; object-src 'none'; base-uri 'self';"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis",
+      "msi"
+    ],
+    "publisher": "Dayour (dayour@microsoft.com)",
+    "shortDescription": "CopilotHub - Enterprise Agentic Desktop OS",
+    "longDescription": "All-in-one enterprise desktop application unifying browser, IDE, terminal, and AI agent control.",
+    "category": "DeveloperTool",
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

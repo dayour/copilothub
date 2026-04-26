@@ -1,0 +1,11 @@
+E:\copilothub\target/vscode-local-check\debug\deps\string_cache-8460d391c5d8c3b7.d: C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\lib.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\atom.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\dynamic_set.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\static_sets.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\trivial_impls.rs
+
+E:\copilothub\target/vscode-local-check\debug\deps\libstring_cache-8460d391c5d8c3b7.rlib: C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\lib.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\atom.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\dynamic_set.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\static_sets.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\trivial_impls.rs
+
+E:\copilothub\target/vscode-local-check\debug\deps\libstring_cache-8460d391c5d8c3b7.rmeta: C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\lib.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\atom.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\dynamic_set.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\static_sets.rs C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\trivial_impls.rs
+
+C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\lib.rs:
+C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\atom.rs:
+C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\dynamic_set.rs:
+C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\static_sets.rs:
+C:\Users\dayour\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\string_cache-0.8.9\src\trivial_impls.rs:
