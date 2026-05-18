@@ -6,6 +6,8 @@
 
 import { APP_CONFIG } from './config';
 import { useBrowserActionStore, toolNameToActionType } from '../store/browserActionStore';
+import { useAppStore } from '../store/appStore';
+import { captureStorage } from './captureStorage';
 import type { MCPToolCallOptions } from './mcpRegistry';
 
 // ---------------------------------------------------------------------------
@@ -295,6 +297,17 @@ export class MCPClient {
             URL.revokeObjectURL(existing.screenshotUrl);
           }
           updates.screenshotUrl = URL.createObjectURL(blob);
+
+          // Persist to disk under ~/Pictures/Screenshots/CopilotHub/.
+          // Fire-and-forget — failures (e.g. running in web preview without
+          // Tauri) must never break the in-memory screenshot flow.
+          if (useAppStore.getState().browserUsePersistScreenshots) {
+            void captureStorage
+              .saveScreenshot(bytes, content.mimeType as string)
+              .catch(() => {
+                /* ignore persistence errors */
+              });
+          }
         } catch {
           // Failed to decode screenshot, skip
         }

@@ -59,6 +59,7 @@ export interface AppStore {
   assistantPaneMode: AssistantPaneMode;
   showActionOverlay: boolean;
   browserUseAutoScreenshot: boolean;
+  browserUsePersistScreenshots: boolean;
   browserUseMaxSteps: number;
   connectedSdkSession: string | null;
   actionTimelineDocked: ActionTimelinePosition;
@@ -86,6 +87,7 @@ export interface AppStore {
   setAuthenticated: (value: boolean) => void;
   toggleActionOverlay: () => void;
   setBrowserUseAutoScreenshot: (value: boolean) => void;
+  setBrowserUsePersistScreenshots: (value: boolean) => void;
   setBrowserUseMaxSteps: (value: number) => void;
   setConnectedSdkSession: (sessionId: string | null) => void;
   setActionTimelineDocked: (position: ActionTimelinePosition) => void;
@@ -116,6 +118,7 @@ export const useAppStore = create<AppStore>()(
     assistantPaneMode: 'copilot' as AssistantPaneMode,
     showActionOverlay: true,
     browserUseAutoScreenshot: true,
+    browserUsePersistScreenshots: true,
     browserUseMaxSteps: 50,
     connectedSdkSession: null,
     actionTimelineDocked: 'right' as ActionTimelinePosition,
@@ -261,6 +264,12 @@ export const useAppStore = create<AppStore>()(
     setBrowserUseAutoScreenshot: (value: boolean) => {
       set((state) => {
         state.browserUseAutoScreenshot = value;
+      });
+    },
+
+    setBrowserUsePersistScreenshots: (value: boolean) => {
+      set((state) => {
+        state.browserUsePersistScreenshots = value;
       });
     },
 

@@ -16,6 +16,8 @@ Agents in CopilotHub are tool families addressed by `@mention` from the chat tab
 | [`@vscode`](./vscode) | VS Code tab | Open file paths in the embedded editor |
 | [`@runbook`](./runbook) | Runbook executor | Run a named runbook from the marketplace |
 
+See also: [Recording](./recording) for screenshot and follow-me capture, including the on-disk layout for Pictures and Videos.
+
 ## Invocation
 
 In the chat tab, switch the input to **Action** mode and type a command. The parser accepts both space- and colon-separated forms:

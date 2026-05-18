@@ -42,12 +42,15 @@ import {
   MousePointerClick,
   Camera,
   Activity,
+  Clapperboard,
+  FolderOpen,
   Settings2,
   Layers3,
   GitBranch,
 } from 'lucide-react';
 import mcpClient from '../lib/mcpClient';
 import { followMeRecorder } from '../lib/followMeRecorder';
+import { captureStorage } from '../lib/captureStorage';
 import { POWER_AUTOMATE_URL } from '../lib/microsoftPanels';
 
 // ---------------------------------------------------------------------------
@@ -363,7 +366,35 @@ export function CommandPalette() {
         label: 'Browser: Start Recording',
         category: 'Browser Use',
         icon: <Play size={16} />,
-        action: () => { followMeRecorder.startRecording(); close(); },
+        action: () => { void followMeRecorder.startRecording(); close(); },
+      },
+      {
+        id: 'browser-use-stop-recording',
+        label: 'Browser: Stop Recording',
+        category: 'Browser Use',
+        icon: <Square size={16} />,
+        action: () => { void followMeRecorder.stopRecording(); close(); },
+      },
+      {
+        id: 'browser-use-replay-last',
+        label: 'Browser: Replay Last Recording',
+        category: 'Browser Use',
+        icon: <Clapperboard size={16} />,
+        action: () => { void followMeRecorder.replayLast(); close(); },
+      },
+      {
+        id: 'browser-use-open-recordings-folder',
+        label: 'Browser: Open Recordings Folder',
+        category: 'Browser Use',
+        icon: <FolderOpen size={16} />,
+        action: () => { void captureStorage.openRecordingsFolder(); close(); },
+      },
+      {
+        id: 'browser-use-open-screenshots-folder',
+        label: 'Browser: Open Screenshots Folder',
+        category: 'Browser Use',
+        icon: <FolderOpen size={16} />,
+        action: () => { void captureStorage.openScreenshotsFolder(); close(); },
       },
       {
         id: 'browser-use-action-timeline',

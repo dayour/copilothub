@@ -5,6 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import mcpClient from './mcpClient';
+import { captureStorage, type SavedRecording } from './captureStorage';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -28,8 +29,10 @@ export interface Recording {
 
 export class FollowMeRecorder {
   private currentRecording: Recording | null = null;
-  private savedRecordings: Recording[] = [];
+  private savedRecordings: SavedRecording[] = [];
+  private hydrated = false;
   private listeners: Set<(recording: Recording | null) => void> = new Set();
+  private savedListeners: Set<(items: SavedRecording[]) => void> = new Set();
 
   // -------------------------------------------------------------------------
   // Subscription
@@ -40,6 +43,14 @@ export class FollowMeRecorder {
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
+    };
+  }
+
+  /** Subscribe to the saved-recordings list. Returns an unsubscribe function. */
+  onSavedChange(listener: (items: SavedRecording[]) => void): () => void {
+    this.savedListeners.add(listener);
+    return () => {
+      this.savedListeners.delete(listener);
     };
   }
 
@@ -57,9 +68,21 @@ export class FollowMeRecorder {
     return this.currentRecording?.status === 'recording';
   }
 
-  /** Get all saved recordings (completed recordings with replay code). */
-  getSavedRecordings(): Recording[] {
+  /** Get all saved recordings (persisted manifests under ~/Videos/CopilotHub). */
+  getSavedRecordings(): SavedRecording[] {
     return [...this.savedRecordings];
+  }
+
+  /** Hydrate saved-recordings list from disk. Safe to call multiple times. */
+  async hydrate(): Promise<SavedRecording[]> {
+    try {
+      this.savedRecordings = await captureStorage.listRecordings();
+    } catch {
+      this.savedRecordings = [];
+    }
+    this.hydrated = true;
+    this.notifySaved();
+    return this.getSavedRecordings();
   }
 
   // -------------------------------------------------------------------------
@@ -118,14 +141,37 @@ export class FollowMeRecorder {
       }
     }
 
+    const finishedAt = Date.now();
     const finishedRecording: Recording = {
       ...this.currentRecording,
       status: 'idle',
-      stoppedAt: Date.now(),
+      stoppedAt: finishedAt,
       code,
     };
 
-    this.savedRecordings.push(finishedRecording);
+    // Persist to ~/Videos/CopilotHub/ as `Recording YYYY-MM-DD HHmmss.{json,js}`.
+    // Failures (e.g. running outside Tauri) are silent — in-memory state still
+    // updates so the UI can surface the recording for this session.
+    try {
+      const saved = await captureStorage.saveRecording(
+        {
+          id: finishedRecording.id,
+          name: finishedRecording.name,
+          startedAt: finishedRecording.startedAt,
+          stoppedAt: finishedAt,
+          language: 'javascript',
+        },
+        code,
+        new Date(finishedRecording.startedAt),
+      );
+      if (saved) {
+        this.savedRecordings = [saved, ...this.savedRecordings];
+        this.notifySaved();
+      }
+    } catch {
+      // ignore persistence failures
+    }
+
     this.currentRecording = null;
     this.notify();
 
@@ -159,9 +205,31 @@ export class FollowMeRecorder {
     }
   }
 
-  /** Delete a saved recording by ID. */
-  deleteRecording(id: string): void {
-    this.savedRecordings = this.savedRecordings.filter((r) => r.id !== id);
+  /** Replay the most recently saved recording, sending its code to the MCP. */
+  async replayLast(): Promise<void> {
+    if (!this.hydrated) {
+      await this.hydrate();
+    }
+    const latest = this.savedRecordings[0];
+    if (!latest) {
+      throw new Error('No saved recordings available');
+    }
+    await this.replay(latest.id);
+  }
+
+  /** Delete a saved recording by manifest filename. */
+  async deleteSavedRecording(manifestFilename: string): Promise<void> {
+    const target = this.savedRecordings.find((r) => r.manifestFilename === manifestFilename);
+    if (!target) return;
+    try {
+      await captureStorage.deleteRecording(target);
+    } catch {
+      // ignore — fall through to remove from list anyway
+    }
+    this.savedRecordings = this.savedRecordings.filter(
+      (r) => r.manifestFilename !== manifestFilename,
+    );
+    this.notifySaved();
   }
 
   // -------------------------------------------------------------------------
@@ -172,6 +240,12 @@ export class FollowMeRecorder {
   private notify(): void {
     for (const listener of this.listeners) {
       listener(this.currentRecording);
+    }
+  }
+
+  private notifySaved(): void {
+    for (const listener of this.savedListeners) {
+      listener(this.getSavedRecordings());
     }
   }
 }

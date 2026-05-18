@@ -210,6 +210,7 @@ export function SettingsPanel() {
   const terminalShell = useAppStore((state) => state.terminalShell);
   const verticalTabsEnabled = useAppStore((state) => state.verticalTabsEnabled);
   const browserUseAutoScreenshot = useAppStore((state) => state.browserUseAutoScreenshot);
+  const browserUsePersistScreenshots = useAppStore((state) => state.browserUsePersistScreenshots);
   const browserUseMaxSteps = useAppStore((state) => state.browserUseMaxSteps);
   const isAuthenticated = useAppStore((state) => state.isAuthenticated);
   const sidecarStatus = useAppStore((state) => state.sidecarStatus);
@@ -224,6 +225,7 @@ export function SettingsPanel() {
   const setTerminalShell = useAppStore((state) => state.setTerminalShell);
   const toggleVerticalTabs = useAppStore((state) => state.toggleVerticalTabs);
   const setBrowserUseAutoScreenshot = useAppStore((state) => state.setBrowserUseAutoScreenshot);
+  const setBrowserUsePersistScreenshots = useAppStore((state) => state.setBrowserUsePersistScreenshots);
   const setBrowserUseMaxSteps = useAppStore((state) => state.setBrowserUseMaxSteps);
   const setSandboxMode = useAppStore((state) => state.setSandboxMode);
   const setApprovalPolicy = useAppStore((state) => state.setApprovalPolicy);
@@ -673,6 +675,29 @@ export function SettingsPanel() {
                           <div className="text-sm font-medium text-text-primary">Capture automatic screenshots</div>
                           <div className="mt-1 text-sm text-text-secondary">
                             Keep visual checkpoints enabled for browser automation runs.
+                          </div>
+                        </div>
+                      </label>
+
+                      <label className="flex items-start gap-3 rounded-lg border border-default bg-surface-primary p-3">
+                        <input
+                          type="checkbox"
+                          checked={browserUsePersistScreenshots}
+                          onChange={(event) => setBrowserUsePersistScreenshots(event.target.checked)}
+                          className="mt-1"
+                        />
+                        <div>
+                          <div className="text-sm font-medium text-text-primary">Save screenshots to disk</div>
+                          <div className="mt-1 text-sm text-text-secondary">
+                            Write each captured screenshot to{' '}
+                            <code className="rounded bg-surface-secondary px-1 py-0.5 text-xs">
+                              %USERPROFILE%\Pictures\Screenshots\CopilotHub\
+                            </code>
+                            {' '}using the same filename pattern as the Windows Snipping Tool.
+                            Recordings persist alongside{' '}
+                            <code className="rounded bg-surface-secondary px-1 py-0.5 text-xs">
+                              %USERPROFILE%\Videos\CopilotHub\
+                            </code>.
                           </div>
                         </div>
                       </label>

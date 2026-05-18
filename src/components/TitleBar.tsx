@@ -8,6 +8,8 @@ import type { Window as TauriWindow } from '@tauri-apps/api/window';
 import { Minus, Square, X, Maximize2 } from 'lucide-react';
 import { useState } from 'react';
 
+import { RecordingIndicator } from './RecordingIndicator';
+
 // Guard: getCurrentWindow() throws outside the Tauri runtime (plain browser).
 let appWindow: TauriWindow | null = null;
 try {
@@ -52,6 +54,11 @@ export function TitleBar() {
         <span className="text-xs font-semibold text-text-secondary tracking-wide" data-tauri-drag-region>
           CopilotHub
         </span>
+      </div>
+
+      {/* Centered recording indicator (only visible while a recording or replay is in flight). */}
+      <div className="flex-1 flex justify-center" data-tauri-drag-region>
+        <RecordingIndicator />
       </div>
 
       {/* Window controls (Tauri only — no-op in plain browser) */}
