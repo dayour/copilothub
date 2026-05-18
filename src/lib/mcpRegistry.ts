@@ -5,6 +5,7 @@
 
 import mcpClient, { MCPToolResult } from './mcpClient';
 import workIqClient from './workIqClient';
+import pacClient from './pacClient';
 
 export interface MCPToolCallOptions {
   preferredServerId?: string;
@@ -237,6 +238,50 @@ mcpRegistry.registerServer({
   },
   toolPrefixes: ['workiq_'],
   toolNames: ['ask_work_iq', 'workiq_ask'],
+});
+
+// Power Platform CLI (pac) server: routes tools prefixed with 'pac_' or
+// 'dataverse_'. Wraps the locally installed `pac` binary via Tauri shell.
+mcpRegistry.registerServer({
+  id: 'pac',
+  client: {
+    async callTool(name, args) {
+      try {
+        let result;
+        if (name === 'pac_run') {
+          const command = String(args['command'] ?? '');
+          result = await pacClient.run(command);
+        } else if (name === 'dataverse_query') {
+          const query = String(args['query'] ?? args['command'] ?? '');
+          result = await pacClient.dataverseQuery(query);
+        } else if (name === 'pac_auth_list') {
+          result = await pacClient.authList();
+        } else if (name === 'pac_org_list') {
+          result = await pacClient.orgList();
+        } else if (name === 'pac_solution_list') {
+          result = await pacClient.solutionList();
+        } else {
+          return {
+            success: false,
+            content: '',
+            error: `Unknown pac tool: ${name}`,
+            isError: true,
+          };
+        }
+        return {
+          success: result.success,
+          content: result.stdout || result.stderr,
+          error: result.error,
+          isError: !result.success,
+        };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        return { success: false, content: '', error: message, isError: true };
+      }
+    },
+  },
+  toolPrefixes: ['pac_', 'dataverse_'],
+  toolNames: ['pac_run', 'dataverse_query', 'pac_auth_list', 'pac_org_list', 'pac_solution_list'],
 });
 
 export default mcpRegistry;

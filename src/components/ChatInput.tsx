@@ -25,8 +25,11 @@ const MENTION_TARGETS: MentionOption[] = [
   { value: '@vscode',    label: 'vscode',    description: 'VS Code editor commands' },
   { value: '@terminal',  label: 'terminal',  description: 'Terminal and shell execution' },
   { value: '@runbook',   label: 'runbook',   description: 'Automated runbook execution' },
-  { value: '@agent365',  label: 'agent365',  description: 'Microsoft 365 agent capabilities' },
-  { value: '@dataverse', label: 'dataverse', description: 'Dataverse data queries and operations' },
+  { value: '@workiq',    label: 'workiq',    description: 'Work IQ semantic Microsoft 365 search' },
+  { value: '@agent365',  label: 'agent365',  description: 'Microsoft 365 agent (Work IQ-backed)' },
+  { value: '@dataverse', label: 'dataverse', description: 'Dataverse queries via Power Platform CLI' },
+  { value: '@graph',     label: 'graph',     description: 'Microsoft Graph API queries' },
+  { value: '@power',     label: 'power',     description: 'Power Platform CLI (pac) commands' },
 ];
 
 // ---------------------------------------------------------------------------

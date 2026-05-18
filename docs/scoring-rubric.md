@@ -307,7 +307,7 @@ submission that fails any gate receives an automatic penalty or is disqualified.
 |------|---------|----------|-------------|
 | TypeScript Compilation | `tsc --noEmit` | Zero errors | FAIL = submission not scored until fixed |
 | Test Suite | `vitest run` | Minimum 80% pass rate | FAIL = -2.0 composite penalty |
-| Regression Check | `vitest run` (baseline comparison) | All pre-existing tests pass | FAIL = submission not scored until fixed |
+| Regression Check | `vitest run` (baseline comparison) | All baseline tests pass | FAIL = submission not scored until fixed |
 | Bundle Size Delta | `vite build` + size comparison | Warn if >10% increase over baseline | WARN = -0.5 composite penalty per 10% over threshold |
 | Fluent 2 Token Audit | See audit script below | Zero ungoverned hardcoded color values | Each violation = -0.1 from Dimension B score |
 

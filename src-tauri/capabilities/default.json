@@ -10,6 +10,21 @@
     "opener:default",
     "shell:allow-spawn",
     "shell:allow-kill",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        { "name": "npx", "cmd": "npx", "args": true },
+        { "name": "npx.cmd", "cmd": "npx.cmd", "args": true },
+        { "name": "workiq", "cmd": "workiq", "args": true },
+        { "name": "workiq.cmd", "cmd": "workiq.cmd", "args": true },
+        { "name": "pac", "cmd": "pac", "args": true },
+        { "name": "pac.exe", "cmd": "pac.exe", "args": true },
+        { "name": "powershell", "cmd": "powershell", "args": true },
+        { "name": "powershell.exe", "cmd": "powershell.exe", "args": true },
+        { "name": "pwsh", "cmd": "pwsh", "args": true },
+        { "name": "pwsh.exe", "cmd": "pwsh.exe", "args": true }
+      ]
+    },
     "fs:allow-read-text-file",
     "fs:allow-write-text-file",
     "fs:allow-write-file",

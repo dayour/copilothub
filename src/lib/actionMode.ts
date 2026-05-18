@@ -237,8 +237,27 @@ function parseRunbookCommand(
   };
 }
 
+function parseFreeformMention(
+  toolName: string,
+  argKey: string,
+  commandText: string,
+  raw: string,
+): ActionCommand | null {
+  const value = asNonEmpty(commandText);
+  if (!value) {
+    return null;
+  }
+  return {
+    tool: toolName,
+    args: { [argKey]: value },
+    raw,
+  };
+}
+
 function parseMentionCommand(trimmedInput: string): ActionCommand | null {
-  const mentionMatch = trimmedInput.match(/^@(browser|terminal|vscode|runbook)\b[:\s]+(.+)$/i);
+  const mentionMatch = trimmedInput.match(
+    /^@(browser|terminal|vscode|runbook|workiq|dataverse|agent365|graph|power)\b[:\s]+(.+)$/i,
+  );
   if (!mentionMatch) {
     return null;
   }
@@ -260,6 +279,22 @@ function parseMentionCommand(trimmedInput: string): ActionCommand | null {
 
   if (target === 'runbook') {
     return parseRunbookCommand(commandText, trimmedInput, { allowBare: true });
+  }
+
+  if (target === 'workiq' || target === 'agent365') {
+    return parseFreeformMention('workiq_ask', 'question', commandText, trimmedInput);
+  }
+
+  if (target === 'dataverse') {
+    return parseFreeformMention('dataverse_query', 'query', commandText, trimmedInput);
+  }
+
+  if (target === 'graph') {
+    return parseFreeformMention('graph_query', 'query', commandText, trimmedInput);
+  }
+
+  if (target === 'power') {
+    return parseFreeformMention('pac_run', 'command', commandText, trimmedInput);
   }
 
   return null;

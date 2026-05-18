@@ -328,15 +328,15 @@
     "description": "Retrieve the signed-in user profile from Microsoft Graph.",
     "capability": "graph",
     "sessionScope": "global",
-    "availability": "placeholder",
-    "tags": ["graph", "profile", "placeholder"],
+    "availability": "available",
+    "tags": ["graph", "profile"],
     "inputSchema": {
       "type": "object",
       "properties": {},
       "additionalProperties": false
     },
     "execution": {
-      "transport": "placeholder",
+      "transport": "local",
       "jsonRpcMethod": "tools/call",
       "streamable": true,
       "sessionBinding": "optional"
@@ -348,15 +348,15 @@
     "description": "List today’s calendar events from Microsoft Graph.",
     "capability": "graph",
     "sessionScope": "global",
-    "availability": "placeholder",
-    "tags": ["graph", "calendar", "placeholder"],
+    "availability": "available",
+    "tags": ["graph", "calendar"],
     "inputSchema": {
       "type": "object",
       "properties": {},
       "additionalProperties": false
     },
     "execution": {
-      "transport": "placeholder",
+      "transport": "local",
       "jsonRpcMethod": "tools/call",
       "streamable": true,
       "sessionBinding": "optional"
@@ -368,15 +368,15 @@
     "description": "List recent OneDrive files from Microsoft Graph.",
     "capability": "graph",
     "sessionScope": "global",
-    "availability": "placeholder",
-    "tags": ["graph", "files", "placeholder"],
+    "availability": "available",
+    "tags": ["graph", "files"],
     "inputSchema": {
       "type": "object",
       "properties": {},
       "additionalProperties": false
     },
     "execution": {
-      "transport": "placeholder",
+      "transport": "local",
       "jsonRpcMethod": "tools/call",
       "streamable": true,
       "sessionBinding": "optional"
@@ -388,15 +388,15 @@
     "description": "Retrieve inbox messages from Microsoft Graph.",
     "capability": "graph",
     "sessionScope": "global",
-    "availability": "placeholder",
-    "tags": ["graph", "mail", "placeholder"],
+    "availability": "available",
+    "tags": ["graph", "mail"],
     "inputSchema": {
       "type": "object",
       "properties": {},
       "additionalProperties": false
     },
     "execution": {
-      "transport": "placeholder",
+      "transport": "local",
       "jsonRpcMethod": "tools/call",
       "streamable": true,
       "sessionBinding": "optional"
@@ -408,15 +408,15 @@
     "description": "Retrieve Teams messages from Microsoft Graph.",
     "capability": "graph",
     "sessionScope": "global",
-    "availability": "placeholder",
-    "tags": ["graph", "teams", "placeholder"],
+    "availability": "available",
+    "tags": ["graph", "teams"],
     "inputSchema": {
       "type": "object",
       "properties": {},
       "additionalProperties": false
     },
     "execution": {
-      "transport": "placeholder",
+      "transport": "local",
       "jsonRpcMethod": "tools/call",
       "streamable": true,
       "sessionBinding": "optional"

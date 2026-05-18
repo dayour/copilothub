@@ -31,6 +31,7 @@ import { useSidecar } from './hooks/useSidecar';
 import { useTauriWebview } from './hooks/useTauriWebview';
 import { isMicrosoftPanelTab } from './lib/microsoftPanels';
 import { isTauri } from './lib/tauri';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const BrowserUseTab = lazy(async () => {
   const module = await import('./components/BrowserUseTab');
@@ -398,12 +399,17 @@ function App() {
                 case 'power-platform':
                   return (
                     <LazyTabFrame key={tab.id} isActive={tab.isActive} className="w-full h-full">
-                      <LazyMicrosoftAppPanel
-                        tabId={tab.id}
-                        tabType={tab.type}
-                        url={tab.url}
-                        isActive={tab.isActive}
-                      />
+                      <ErrorBoundary
+                        label={tab.type === 'copilot-studio' ? 'Copilot Studio panel' : 'Power Platform panel'}
+                        resetKey={tab.url ?? tab.id}
+                      >
+                        <LazyMicrosoftAppPanel
+                          tabId={tab.id}
+                          tabType={tab.type}
+                          url={tab.url}
+                          isActive={tab.isActive}
+                        />
+                      </ErrorBoundary>
                     </LazyTabFrame>
                   );
                 case 'chat':

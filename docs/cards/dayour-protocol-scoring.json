@@ -320,7 +320,7 @@
         },
         {
           "title": "Regression Check",
-          "value": "All pre-existing tests must pass. FAIL blocks scoring."
+          "value": "All baseline tests must pass. FAIL blocks scoring."
         },
         {
           "title": "Bundle Size Delta",

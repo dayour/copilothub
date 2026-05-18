@@ -39,7 +39,7 @@ All five gates must pass. Any failure blocks Phase 2 entry.
 | TypeScript | `tsc --noEmit` | Zero errors, zero warnings treated as errors |
 | Unit Tests | `npm run test` | All tests pass, no skipped tests without justification |
 | Build | `npm run build` | Exit code 0, no build warnings in production config |
-| Regression | Diff against main test suite | No pre-existing tests broken |
+| Regression | Diff against main test suite | No baseline tests broken |
 | Coverage | New code inspection | Every new module/component has corresponding tests |
 
 ### 1.2 Fluent 2 Compliance Checks

@@ -41,7 +41,9 @@ export type MentionTarget =
   | '@runbook'
   | '@agent365'
   | '@dataverse'
-  | '@workiq';
+  | '@workiq'
+  | '@graph'
+  | '@power';
 
 export interface ChatThreadState {
   threadId: string;

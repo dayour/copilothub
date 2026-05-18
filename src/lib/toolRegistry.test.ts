@@ -49,7 +49,7 @@ describe('ToolRegistry', () => {
     const graphTools = registry.listTools({
       capability: 'graph',
       sessionScope: 'global',
-      availability: 'placeholder',
+      availability: 'available',
       streamable: true,
     });
 
