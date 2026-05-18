@@ -59,7 +59,7 @@ describe('NewTabPage', () => {
   it('quick action buttons present', () => {
     render(<NewTabPage tabId="test-tab-1" />);
     expect(screen.getByRole('button', { name: 'Open Chat' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'New Terminal' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Terminal' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'VS Code' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Runbooks' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Copilot Studio' })).toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('NewTabPage', () => {
     const countBefore = useTabStore.getState().tabs.length;
     render(<NewTabPage tabId="test-tab-1" />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'New Terminal' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Terminal' }));
 
     const tabsAfter = useTabStore.getState().tabs;
     expect(tabsAfter.length).toBe(countBefore + 1);
@@ -102,9 +102,9 @@ describe('NewTabPage', () => {
     expect(useTabStore.getState().tabs.at(-1)?.type).toBe('power-platform');
   });
 
-  it('getting started tips render', () => {
+  it('tips strip renders', () => {
     render(<NewTabPage tabId="test-tab-1" />);
-    expect(screen.getByText('Press Ctrl+Shift+P for Command Palette')).toBeInTheDocument();
+    expect(screen.getByText(/control the browser/i)).toBeInTheDocument();
   });
 });
 

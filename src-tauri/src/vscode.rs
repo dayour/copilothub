@@ -9,6 +9,8 @@ use serde_json::Value;
 use serde::Serialize;
 use tauri::State;
 
+use crate::process::{is_process_alive, shutdown_process};
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum VsCodeServerLifecycle {
     Stopped,
@@ -145,81 +147,6 @@ pub struct VsCodeExtensionHostStatusResponse {
     summary: String,
     last_error: Option<String>,
     remaining_gaps: Vec<String>,
-}
-
-fn is_process_alive(pid: u32) -> bool {
-    #[cfg(target_os = "windows")]
-    {
-        Command::new("tasklist")
-            .args(["/FI", &format!("PID eq {}", pid), "/NH"])
-            .output()
-            .map(|o| {
-                let stdout = String::from_utf8_lossy(&o.stdout);
-                stdout.contains(&pid.to_string())
-            })
-            .unwrap_or(false)
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        unsafe { libc::kill(pid as i32, 0) == 0 }
-    }
-}
-
-fn shutdown_process(pid: u32) -> Result<(), String> {
-    #[cfg(target_os = "windows")]
-    {
-        let graceful = Command::new("taskkill")
-            .args(["/PID", &pid.to_string()])
-            .output();
-
-        if let Ok(output) = graceful {
-            if output.status.success() {
-                std::thread::sleep(Duration::from_millis(500));
-                if !is_process_alive(pid) {
-                    return Ok(());
-                }
-            }
-        }
-
-        let forced = Command::new("taskkill")
-            .args(["/PID", &pid.to_string(), "/F"])
-            .output()
-            .map_err(|e| format!("Failed to force-kill process {}: {}", pid, e))?;
-
-        if forced.status.success() || !is_process_alive(pid) {
-            Ok(())
-        } else {
-            Err(format!(
-                "Force-kill returned non-zero for PID {}: {}",
-                pid,
-                String::from_utf8_lossy(&forced.stderr)
-            ))
-        }
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        let _ = Command::new("kill")
-            .args(["-15", &pid.to_string()])
-            .output();
-
-        std::thread::sleep(Duration::from_millis(500));
-
-        if !is_process_alive(pid) {
-            return Ok(());
-        }
-
-        let _ = Command::new("kill")
-            .args(["-9", &pid.to_string()])
-            .output();
-
-        if !is_process_alive(pid) {
-            Ok(())
-        } else {
-            Err(format!("Failed to kill process {}", pid))
-        }
-    }
 }
 
 fn read_env(key: &str) -> Option<String> {

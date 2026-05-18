@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Copilot Hub Logo Set Preview</title>
+<style>
+  :root { --night:#0B1117; --ink:#0F172A; --hub:#38C8FF; --slate:#7B8DAA; }
+  body { margin:0; font-family: Inter, Segoe UI, Arial, sans-serif; background:#f4f7fb; color:var(--ink); }
+  main { max-width: 1120px; margin: 48px auto; padding: 0 24px; }
+  h1 { font-size: 44px; letter-spacing:-1.5px; margin:0 0 8px; }
+  p { color:#526070; }
+  .grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:24px; margin-top:32px; }
+  .card { border:1px solid #d8e1ea; border-radius:28px; padding:32px; background:#fff; min-height:220px; display:flex; align-items:center; justify-content:center; }
+  .dark { background: radial-gradient(circle at 80% 10%, rgba(56,200,255,.18), transparent 42%), var(--night); border-color:rgba(255,255,255,.08); }
+  img { max-width:100%; height:auto; }
+  .icons { display:grid; grid-template-columns: repeat(4, 1fr); gap:18px; margin-top:24px; }
+  .icon-card { border:1px solid #d8e1ea; background:#fff; border-radius:24px; padding:24px; text-align:center; }
+  .icon-card.dark { background:var(--night); }
+  code { background:#e9eef5; padding:2px 6px; border-radius:6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Copilot Hub Logo Set</h1>
+  <p>Preview of the generated SVG and PNG assets. Use <code>README.md</code> for file recommendations and usage notes.</p>
+  <div class="grid">
+    <div class="card"><img src="svg/lockups/copilot-hub-horizontal-light.svg" alt="Copilot Hub horizontal light logo" /></div>
+    <div class="card dark"><img src="svg/lockups/copilot-hub-horizontal-dark.svg" alt="Copilot Hub horizontal dark logo" /></div>
+    <div class="card"><img src="svg/lockups/copilot-hub-stacked-light.svg" alt="Copilot Hub stacked light logo" /></div>
+    <div class="card dark"><img src="svg/lockups/copilot-hub-stacked-dark.svg" alt="Copilot Hub stacked dark logo" /></div>
+  </div>
+  <div class="icons">
+    <div class="icon-card"><img src="svg/icon/copilot-hub-icon-gradient.svg" alt="Gradient icon" /></div>
+    <div class="icon-card dark"><img src="svg/icon/copilot-hub-icon-gradient.svg" alt="Gradient icon on dark" /></div>
+    <div class="icon-card dark"><img src="svg/icon/copilot-hub-icon-white.svg" alt="White icon" /></div>
+    <div class="icon-card"><img src="svg/icon/copilot-hub-icon-black.svg" alt="Black icon" /></div>
+  </div>
+</main>
+</body>
+</html>

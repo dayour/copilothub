@@ -248,7 +248,7 @@ describe('App shell layout', () => {
     expect(screen.getByText('Copilot Sidebar')).toBeInTheDocument();
   });
 
-  it('routes Microsoft tabs through the dedicated Microsoft panel and hides browser chrome in browser-host mode', () => {
+  it('routes Microsoft tabs through the dedicated Microsoft panel and hides browser chrome in browser-host mode', async () => {
     useTabStore.setState({
       tabs: [
         createTab({
@@ -272,7 +272,7 @@ describe('App shell layout', () => {
 
     render(<App />);
 
-    expect(screen.getByText('Microsoft App Panel')).toBeInTheDocument();
+    expect(await screen.findByText('Microsoft App Panel')).toBeInTheDocument();
     expect(screen.queryByText('Address Bar')).not.toBeInTheDocument();
   });
 
@@ -314,14 +314,14 @@ describe('App shell layout', () => {
     expect(screen.getByText('Copilot Sidebar')).toBeInTheDocument();
   });
 
-  it('opens a terminal tab from the collapsed assistant rail', () => {
+  it('opens a terminal tab from the collapsed assistant rail', async () => {
     useAppStore.setState({ copilotSidebarOpen: false });
 
     render(<App />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Open terminal tab' }));
 
-    expect(screen.getByText('Terminal Tab')).toBeInTheDocument();
+    expect(await screen.findByText('Terminal Tab')).toBeInTheDocument();
   });
 
   it('renders the Git review pane when review mode is active', () => {

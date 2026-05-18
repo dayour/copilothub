@@ -1,0 +1,52 @@
+{
+  "name": "Copilot Hub Logo Set",
+  "source": "Generated from the supplied Copilot Hub logo image",
+  "created_assets": {
+    "svg_icon": [
+      "svg/icon/copilot-hub-icon-black.svg",
+      "svg/icon/copilot-hub-icon-dark-background.svg",
+      "svg/icon/copilot-hub-icon-gradient-glow.svg",
+      "svg/icon/copilot-hub-icon-gradient.svg",
+      "svg/icon/copilot-hub-icon-white.svg"
+    ],
+    "svg_lockups": [
+      "svg/lockups/copilot-hub-horizontal-black.svg",
+      "svg/lockups/copilot-hub-horizontal-dark-background.svg",
+      "svg/lockups/copilot-hub-horizontal-dark.svg",
+      "svg/lockups/copilot-hub-horizontal-light.svg",
+      "svg/lockups/copilot-hub-horizontal-white.svg",
+      "svg/lockups/copilot-hub-stacked-black.svg",
+      "svg/lockups/copilot-hub-stacked-dark-background.svg",
+      "svg/lockups/copilot-hub-stacked-dark.svg",
+      "svg/lockups/copilot-hub-stacked-light.svg",
+      "svg/lockups/copilot-hub-stacked-white.svg"
+    ],
+    "svg_wordmark": [
+      "svg/wordmark/copilot-hub-wordmark-black.svg",
+      "svg/wordmark/copilot-hub-wordmark-dark.svg",
+      "svg/wordmark/copilot-hub-wordmark-light.svg",
+      "svg/wordmark/copilot-hub-wordmark-white.svg"
+    ],
+    "png_categories": [
+      "icon/transparent",
+      "icon/dark_background",
+      "lockups/horizontal",
+      "lockups/stacked",
+      "wordmark",
+      "favicon",
+      "social"
+    ]
+  },
+  "palette": {
+    "night": "#0B1117",
+    "night_2": "#121A24",
+    "slate": "#7B8DAA",
+    "cloud": "#F7FBFF",
+    "ink": "#0F172A",
+    "hub_blue": "#38C8FF",
+    "copilot_blue": "#7BA4D6",
+    "deep_blue": "#2C75FF"
+  },
+  "font_note": "SVG files reference Inter with system fallbacks. Font files are not included.",
+  "safe_area": "Icon SVG uses a 1024 square viewBox with approximately 8% vertical clear space."
+}

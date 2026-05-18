@@ -181,7 +181,7 @@ export interface RunbookStep {
   /**
    * Tool-specific argument payload.
    */
-  args: Record<string, any>;
+  args: Record<string, unknown>;
 
   /**
    * Optional post-step validation.

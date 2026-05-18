@@ -1,0 +1,99 @@
+{
+  "name": "Copilot Hub Full Icon Set",
+  "source_zip": "Copilot_Hub_Logo_Set.zip",
+  "source_svg_used": "Copilot_Hub_Logo_Set/svg/icon/copilot-hub-icon-gradient.svg",
+  "viewBox": "0 0 1024 1024",
+  "palette": {
+    "night": "#0B1117",
+    "night_2": "#121A24",
+    "slate": "#7B8DAA",
+    "cloud": "#F7FBFF",
+    "ink": "#0F172A",
+    "hub_blue": "#38C8FF",
+    "copilot_blue": "#7BA4D6",
+    "deep_blue": "#2C75FF"
+  },
+  "variants": [
+    "gradient",
+    "mono-white",
+    "mono-black",
+    "current-color"
+  ],
+  "icons": [
+    {
+      "slug": "hub",
+      "label": "Hub",
+      "description": "Primary Copilot Hub mark with connected diamond agents."
+    },
+    {
+      "slug": "agents",
+      "label": "Agents",
+      "description": "Agent/person glyph for managing copilot agents."
+    },
+    {
+      "slug": "create",
+      "label": "Create",
+      "description": "Plus glyph for creating agents and workflows."
+    },
+    {
+      "slug": "explore",
+      "label": "Explore",
+      "description": "Compass glyph for browsing and discovering agents."
+    },
+    {
+      "slug": "chat",
+      "label": "Chat",
+      "description": "Conversation bubble glyph for chat experiences."
+    },
+    {
+      "slug": "analytics",
+      "label": "Analytics",
+      "description": "Bar chart glyph for metrics, telemetry, and insights."
+    },
+    {
+      "slug": "automations",
+      "label": "Automations",
+      "description": "Lightning glyph for automations and triggers."
+    },
+    {
+      "slug": "integrations",
+      "label": "Integrations",
+      "description": "Plug glyph for connectors and integrations."
+    },
+    {
+      "slug": "knowledge",
+      "label": "Knowledge",
+      "description": "Open-book glyph for knowledge sources."
+    },
+    {
+      "slug": "tools",
+      "label": "Tools",
+      "description": "Wrench glyph for agent tools and actions."
+    },
+    {
+      "slug": "settings",
+      "label": "Settings",
+      "description": "Gear-like glyph for configuration and settings."
+    },
+    {
+      "slug": "security",
+      "label": "Security",
+      "description": "Shield-check glyph for policy, governance, and security."
+    },
+    {
+      "slug": "users",
+      "label": "Users",
+      "description": "Group glyph for users and teams."
+    },
+    {
+      "slug": "notifications",
+      "label": "Notifications",
+      "description": "Bell glyph for notifications and alerts."
+    }
+  ],
+  "notes": [
+    "Module icons use the supplied Copilot Hub SVG frame and a centered module glyph.",
+    "The current-color variant is intended for CSS-driven UI usage.",
+    "The symbol sprite uses currentColor and can be embedded inline in HTML or React."
+  ]
+}

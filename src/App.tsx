@@ -16,9 +16,7 @@ import { AddressBar } from './components/AddressBar';
 import { ChatMessageList } from './components/ChatMessageList';
 import { ChatInput } from './components/ChatInput';
 import { ChatThreadBar } from './components/ChatThreadBar';
-import { TerminalTab } from './components/TerminalTab';
 import { NewTabPage } from './components/NewTabPage';
-import { MicrosoftAppPanel } from './components/MicrosoftAppPanel';
 import { CommandPalette } from './components/CommandPalette';
 import { CopilotSidebar } from './components/CopilotSidebar';
 import { GitReviewPane } from './components/GitReviewPane';
@@ -44,9 +42,19 @@ const LazyVSCodeTab = lazy(async () => {
   return { default: module.VSCodeTab };
 });
 
+const LazyTerminalTab = lazy(async () => {
+  const module = await import('./components/TerminalTab');
+  return { default: module.TerminalTab };
+});
+
 const LazyRunbookMarketplace = lazy(async () => {
   const module = await import('./components/RunbookMarketplace');
   return { default: module.RunbookMarketplace };
+});
+
+const LazyMicrosoftAppPanel = lazy(async () => {
+  const module = await import('./components/MicrosoftAppPanel');
+  return { default: module.MicrosoftAppPanel };
 });
 
 const CalendarApp = lazy(async () => {
@@ -389,13 +397,14 @@ function App() {
                 case 'copilot-studio':
                 case 'power-platform':
                   return (
-                    <MicrosoftAppPanel
-                      key={tab.id}
-                      tabId={tab.id}
-                      tabType={tab.type}
-                      url={tab.url}
-                      isActive={tab.isActive}
-                    />
+                    <LazyTabFrame key={tab.id} isActive={tab.isActive} className="w-full h-full">
+                      <LazyMicrosoftAppPanel
+                        tabId={tab.id}
+                        tabType={tab.type}
+                        url={tab.url}
+                        isActive={tab.isActive}
+                      />
+                    </LazyTabFrame>
                   );
                 case 'chat':
                   return <ChatTabContent key={tab.id} isActive={tab.isActive} />;
@@ -407,13 +416,9 @@ function App() {
                   );
                 case 'terminal':
                   return (
-                    <div
-                      key={tab.id}
-                      className="w-full h-full"
-                      style={{ display: tab.isActive ? 'block' : 'none' }}
-                    >
-                      <TerminalTab isActive={tab.isActive} />
-                    </div>
+                    <LazyTabFrame key={tab.id} isActive={tab.isActive} className="w-full h-full">
+                      <LazyTerminalTab isActive={tab.isActive} />
+                    </LazyTabFrame>
                   );
                 case 'runbook':
                   return (

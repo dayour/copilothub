@@ -115,5 +115,30 @@ describe('AddressBar', () => {
 
     expect(input).toHaveValue('https://copilot.microsoft.com');
   });
+
+  it('does not render the external browser link for unsafe protocols', () => {
+    useTabStore.setState({
+      tabs: [
+        makeTabs()[0],
+        {
+          ...makeTabs()[1],
+          url: 'javascript:alert(1)',
+        },
+      ],
+    });
+
+    render(<AddressBar />);
+
+    expect(screen.queryByRole('link', { name: 'Open in external browser' })).not.toBeInTheDocument();
+  });
+
+  it('renders the external browser link for safe web protocols', () => {
+    render(<AddressBar />);
+
+    expect(screen.getByRole('link', { name: 'Open in external browser' })).toHaveAttribute(
+      'href',
+      'https://copilot.microsoft.com',
+    );
+  });
 });
 

@@ -41,6 +41,14 @@ export function TitleBar() {
     >
       {/* App branding */}
       <div className="flex items-center gap-2 pl-3" data-tauri-drag-region>
+        <img
+          src="/copilot-hub-mark.svg"
+          alt=""
+          aria-hidden="true"
+          className="h-4 w-4"
+          data-tauri-drag-region
+          draggable={false}
+        />
         <span className="text-xs font-semibold text-text-secondary tracking-wide" data-tauri-drag-region>
           CopilotHub
         </span>

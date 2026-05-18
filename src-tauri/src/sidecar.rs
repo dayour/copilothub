@@ -2,6 +2,8 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::{AppHandle, Manager, State};
 
+use crate::process::{is_process_alive, shutdown_process};
+
 /// Sidecar lifecycle states. Avoids stringly-typed status comparisons.
 #[derive(Clone, Debug, PartialEq)]
 pub enum SidecarLifecycle {
@@ -42,98 +44,12 @@ impl Default for SidecarState {
     }
 }
 
-/// Check whether a process with the given PID is still alive.
-fn is_process_alive(pid: u32) -> bool {
-    #[cfg(target_os = "windows")]
-    {
-        use std::process::Command;
-        Command::new("tasklist")
-            .args(["/FI", &format!("PID eq {}", pid), "/NH"])
-            .output()
-            .map(|o| {
-                let stdout = String::from_utf8_lossy(&o.stdout);
-                stdout.contains(&pid.to_string())
-            })
-            .unwrap_or(false)
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        // POSIX: signal 0 tests process existence without killing it.
-        unsafe { libc::kill(pid as i32, 0) == 0 }
-    }
-}
-
-/// Attempt graceful shutdown, falling back to force kill after a timeout.
-fn shutdown_process(pid: u32) -> Result<(), String> {
-    #[cfg(target_os = "windows")]
-    {
-        // On Windows, send taskkill without /F first (graceful), then /F.
-        let graceful = std::process::Command::new("taskkill")
-            .args(["/PID", &pid.to_string()])
-            .output();
-
-        if let Ok(output) = graceful {
-            if output.status.success() {
-                // Wait briefly for process to exit.
-                std::thread::sleep(std::time::Duration::from_millis(500));
-                if !is_process_alive(pid) {
-                    return Ok(());
-                }
-            }
-        }
-
-        // Force kill.
-        let forced = std::process::Command::new("taskkill")
-            .args(["/PID", &pid.to_string(), "/F"])
-            .output()
-            .map_err(|e| format!("Failed to force-kill process {}: {}", pid, e))?;
-
-        if forced.status.success() || !is_process_alive(pid) {
-            Ok(())
-        } else {
-            Err(format!(
-                "Force-kill returned non-zero for PID {}: {}",
-                pid,
-                String::from_utf8_lossy(&forced.stderr)
-            ))
-        }
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        use std::process::Command;
-
-        // SIGTERM first.
-        let _ = Command::new("kill")
-            .args(["-15", &pid.to_string()])
-            .output();
-
-        std::thread::sleep(std::time::Duration::from_millis(500));
-
-        if !is_process_alive(pid) {
-            return Ok(());
-        }
-
-        // SIGKILL fallback.
-        let _ = Command::new("kill")
-            .args(["-9", &pid.to_string()])
-            .output();
-
-        if !is_process_alive(pid) {
-            Ok(())
-        } else {
-            Err(format!("Failed to kill process {}", pid))
-        }
-    }
-}
-
 /// Validate that a port number falls in the user-space range.
 fn validate_port(port: u16) -> Result<(), String> {
-  if port < 1024 {
-    return Err(format!("Port {} is in the privileged range (< 1024)", port));
-  }
-  Ok(())
+    if port < 1024 {
+        return Err(format!("Port {} is in the privileged range (< 1024)", port));
+    }
+    Ok(())
 }
 
 fn sidecar_binary_candidates(app: &AppHandle) -> Vec<PathBuf> {

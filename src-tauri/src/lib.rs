@@ -1,4 +1,5 @@
 mod browser;
+mod process;
 mod sandbox;
 mod sidecar;
 mod streamable_http_server;

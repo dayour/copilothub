@@ -28,6 +28,16 @@
   --color-enterprise-blue-light: #2b88d8;
   --color-enterprise-blue-dark: #004578;
 
+  /* Copilot Hub brand palette */
+  --color-brand-night: #0B1117;
+  --color-brand-night-2: #121A24;
+  --color-brand-ink: #0F172A;
+  --color-brand-slate: #7B8DAA;
+  --color-brand-cloud: #F7FBFF;
+  --color-brand-copilot-blue: #7BA4D6;
+  --color-brand-hub-blue: #38C8FF;
+  --gradient-brand-hub: linear-gradient(135deg, #7BA4D6 0%, #38C8FF 100%);
+
   --color-status-success: #4ec9b0;
   --color-status-warning: #dcdcaa;
   --color-status-error: #f44747;

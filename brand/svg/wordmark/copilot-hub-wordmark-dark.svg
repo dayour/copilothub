@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="260" viewBox="0 0 1120 260" role="img" aria-labelledby="title desc">
+<title id="title">Copilot Hub wordmark</title>
+<desc id="desc">Copilot Hub wordmark in a clean modern sans serif lockup.</desc>
+
+<defs>
+  <linearGradient id="ch-gradient" x1="186" y1="118" x2="840" y2="920" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#7BA4D6"/>
+    <stop offset="0.46" stop-color="#66A9E9"/>
+    <stop offset="1" stop-color="#38C8FF"/>
+  </linearGradient>
+  <linearGradient id="ch-word-gradient" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#7BA4D6"/>
+    <stop offset="1" stop-color="#38C8FF"/>
+  </linearGradient>
+  <filter id="soft-glow" x="-35%" y="-35%" width="170%" height="170%">
+    <feGaussianBlur stdDeviation="16" result="blur"/>
+    <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.15  0 0 0 0 0.62  0 0 0 0 1  0 0 0 0.55 0" result="glow"/>
+    <feMerge>
+      <feMergeNode in="glow"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+</defs>
+
+<text x="16" y="178" font-family="Inter, Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="152" font-weight="760" letter-spacing="-6"><tspan fill="#F7FBFF">Copilot</tspan><tspan dx="42" fill="#38C8FF">Hub</tspan></text>
+</svg>

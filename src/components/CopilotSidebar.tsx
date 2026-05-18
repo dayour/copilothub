@@ -30,6 +30,7 @@ import {
   isGraphSidebarConfigured,
 } from '../lib/graphSidebar';
 import mcpClient from '../lib/mcpClient';
+import { getSafeExternalHref } from '../lib/urlSafety';
 
 type GraphWidgetStatus = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -785,27 +786,31 @@ export function CopilotSidebar() {
                 >
                   {graphWidgets.files.data && graphWidgets.files.data.length > 0 ? (
                     <ul className="space-y-2">
-                      {graphWidgets.files.data.map((file) => (
-                        <li key={file.id} className="text-[12px]">
-                          {file.webUrl ? (
-                            <a
-                              href={file.webUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="font-medium text-accent-primary hover:text-accent-hover transition-colors"
-                            >
-                              {file.name ?? 'Unnamed file'}
-                            </a>
-                          ) : (
-                            <div className="font-medium text-text-primary">
-                              {file.name ?? 'Unnamed file'}
+                      {graphWidgets.files.data.map((file) => {
+                        const safeFileUrl = file.webUrl ? getSafeExternalHref(file.webUrl) : null;
+
+                        return (
+                          <li key={file.id} className="text-[12px]">
+                            {safeFileUrl ? (
+                              <a
+                                href={safeFileUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-medium text-accent-primary hover:text-accent-hover transition-colors"
+                              >
+                                {file.name ?? 'Unnamed file'}
+                              </a>
+                            ) : (
+                              <div className="font-medium text-text-primary">
+                                {file.name ?? 'Unnamed file'}
+                              </div>
+                            )}
+                            <div className="text-text-muted">
+                              Modified {formatShortDate(file.lastModifiedDateTime ?? file.createdDateTime)}
                             </div>
-                          )}
-                          <div className="text-text-muted">
-                            Modified {formatShortDate(file.lastModifiedDateTime ?? file.createdDateTime)}
-                          </div>
-                        </li>
-                      ))}
+                          </li>
+                        );
+                      })}
                     </ul>
                   ) : (
                     <div className="text-[12px] text-text-muted">
@@ -833,35 +838,39 @@ export function CopilotSidebar() {
                 >
                   {graphWidgets.mail.data && graphWidgets.mail.data.length > 0 ? (
                     <ul className="space-y-2">
-                      {graphWidgets.mail.data.map((message) => (
-                        <li key={message.id} className="text-[12px]">
-                          {message.webLink ? (
-                            <a
-                              href={message.webLink}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="font-medium text-accent-primary hover:text-accent-hover transition-colors"
+                      {graphWidgets.mail.data.map((message) => {
+                        const safeMessageUrl = message.webLink ? getSafeExternalHref(message.webLink) : null;
+
+                        return (
+                          <li key={message.id} className="text-[12px]">
+                            {safeMessageUrl ? (
+                              <a
+                                href={safeMessageUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-medium text-accent-primary hover:text-accent-hover transition-colors"
+                              >
+                                {message.subject ?? 'No subject'}
+                              </a>
+                            ) : (
+                              <div className="font-medium text-text-primary">
+                                {message.subject ?? 'No subject'}
+                              </div>
+                            )}
+                            <div className="text-text-secondary">{mailSender(message)}</div>
+                            <div
+                              className="text-text-muted overflow-hidden"
+                              style={{
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                              }}
                             >
-                              {message.subject ?? 'No subject'}
-                            </a>
-                          ) : (
-                            <div className="font-medium text-text-primary">
-                              {message.subject ?? 'No subject'}
+                              {message.bodyPreview ?? 'No preview available.'}
                             </div>
-                          )}
-                          <div className="text-text-secondary">{mailSender(message)}</div>
-                          <div
-                            className="text-text-muted overflow-hidden"
-                            style={{
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                            }}
-                          >
-                            {message.bodyPreview ?? 'No preview available.'}
-                          </div>
-                        </li>
-                      ))}
+                          </li>
+                        );
+                      })}
                     </ul>
                   ) : (
                     <div className="text-[12px] text-text-muted">

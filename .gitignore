@@ -1,6 +1,7 @@
 # Logs
 logs
 *.log
+.build.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -10,19 +11,102 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+build/
+out/
 *.local
 
-# Editor directories and files
+# Test / coverage output
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+*.lcov
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Local environment files (NEVER commit secrets)
+.env
+.env.*
+!.env.example
+!.env.sample
+*.env.local
+
+# Secrets, keys, certificates
+*.pem
+*.key
+*.pfx
+*.p12
+*.crt
+*.cer
+*.der
+*.jks
+*.keystore
+*.snk
+secrets.json
+credentials.json
+auth.json
+.secrets/
+.azure/
+.azd/
+
+# Editor / IDE
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+!.vscode/settings.shared.json
+.idea/
+.vs/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
 
-# Rust build artifacts
+# OS artifacts
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Backup / temp
+*.bak
+*.orig
+*.tmp
+*.rej
+*~
+
+# Rust / Tauri build artifacts
 target/
-review-worktrees/rust/src-tauri/target/
+review-worktrees/
+src-tauri/target/
+src-tauri/gen/schemas/
+src-tauri/WixTools/
+
+# Tauri bundle outputs (also covered by target/, but explicit)
+src-tauri/target/release/bundle/
+
+# Tauri sidecar binaries (committed source only, not built binaries)
+src-tauri/sidecars/*.exe
+src-tauri/sidecars/*.dll
+src-tauri/sidecars/*.dylib
+src-tauri/sidecars/*.so
+
+# Installer artifacts at repo root
+/*.exe
+/*.msi
+/*.nupkg
+/*.appx
+/*.msix
+
+# Stray screenshots at root (use docs/ or brand/ for canonical assets)
+/screenshot-*.png
+/screen-*.png
+/screenshot-*.jpg
+
+# Local plan / scratch
+.scratch/
+scratchpad/
+TODO.local.md

@@ -27,7 +27,7 @@ function readNumberEnv(key: string, fallback: number): number {
 
 export const APP_CONFIG = {
   name: 'CopilotHub',
-  version: '1.0.0',
+  version: '2.1.0',
   description: 'Enterprise Agentic Desktop OS',
 
   // Default URLs

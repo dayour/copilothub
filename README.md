@@ -1,8 +1,15 @@
-# CopilotHub -- Enterprise Agentic Desktop OS
+<p align="center">
+  <img src="brand/hero-banner.png" alt="CopilotHub" width="100%" />
+</p>
+
+<h1 align="center">CopilotHub</h1>
+<p align="center"><em>The central agent hub. Browse, build, and orchestrate every Copilot surface from one workspace.</em></p>
 
 ## Overview
 
 CopilotHub is an all-in-one enterprise desktop application built with Tauri 2.x and WebView2. It unifies browser navigation, IDE workflows, terminal execution, AI chat, and agent-driven browser control inside a single native desktop window.
+
+Brand assets, palette, and integration points are documented in [`docs/assets-index.md`](docs/assets-index.md).
 
 ## Architecture
 
@@ -60,18 +67,39 @@ CopilotHub is an all-in-one enterprise desktop application built with Tauri 2.x 
 - Rust 1.93+
 - Tauri CLI 2.x
 
+### Install dependencies
+
+```bash
+npm install
+```
+
 ### Run in development
 
 ```bash
-cd E:\copilothub
-npm install
 npm run tauri dev
+```
+
+### Run the frontend only (no native shell)
+
+```bash
+npm run dev
+```
+
+### Run tests
+
+```bash
+npm test           # one-shot vitest run
+npm run test:watch # watch mode
 ```
 
 ## Building
 
 ```bash
-npm run tauri build --target x86_64-pc-windows-msvc
+# Frontend type-check + production bundle
+npm run build
+
+# Full Tauri desktop build (note the `--` to forward args to the tauri CLI)
+npm run tauri -- build --target x86_64-pc-windows-msvc
 ```
 
 ## Project Structure
@@ -107,7 +135,7 @@ E:\copilothub\
 | `Ctrl+Shift+P` | Global | Open command palette |
 | `Ctrl+Shift+E` | Global | Toggle vertical tabs |
 | `Ctrl+Shift+C` | Global | Focus chat tab |
-| `Ctrl+\`` | Global | Open/focus terminal tab |
+| ``Ctrl+` `` | Global | Open/focus terminal tab |
 | `F5` | Browser tab | Refresh current browser tab |
 | `Enter` | Chat input | Send message |
 | `Shift+Enter` | Chat input | Insert newline |

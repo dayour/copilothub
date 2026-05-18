@@ -9,6 +9,7 @@ import { EMPTY_CHAT_MESSAGES, useChatStore } from '../store/chatStore';
 import type { ChatMessage, ToolCall } from '../store/chatStore';
 import { useSessionEnvironmentStore } from '../store/sessionEnvironmentStore';
 import { Copy, Check, Terminal } from 'lucide-react';
+import { getSafeMarkdownHref } from '../lib/urlSafety';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -102,16 +103,21 @@ function parseInline(line: string, keyBase: string): React.ReactNode[] {
       );
     } else if (m[4] !== undefined && m[5] !== undefined) {
       // [text](url)
+      const safeHref = getSafeMarkdownHref(m[5]);
       nodes.push(
-        <a
-          key={key}
-          href={m[5]}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline decoration-current/60 hover:decoration-current"
-        >
-          {m[4]}
-        </a>,
+        safeHref ? (
+          <a
+            key={key}
+            href={safeHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline decoration-current/60 hover:decoration-current"
+          >
+            {m[4]}
+          </a>
+        ) : (
+          m[4]
+        ),
       );
     }
     last = m.index + m[0].length;

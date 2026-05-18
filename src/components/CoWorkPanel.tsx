@@ -12,6 +12,7 @@ import {
 import { usePcaeStore, type PcaePhase, type PcaeTask } from '../store/pcaeStore';
 import workIqClient from '../lib/workIqClient';
 import type { WorkIqResponse } from '../lib/workIqClient';
+import { getSafeExternalHref } from '../lib/urlSafety';
 
 // ---------------------------------------------------------------------------
 // Phase badge
@@ -113,18 +114,28 @@ function WorkIqQueryWidget() {
           </div>
           {response.sources.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
-              {response.sources.slice(0, 5).map((src, i) => (
-                <a
-                  key={i}
-                  href={src.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 rounded border border-border-default bg-surface-tertiary px-2 py-0.5 text-xs text-text-secondary transition-colors hover:text-text-primary"
-                  title={src.url}
-                >
-                  <span className="max-w-[160px] truncate">{src.title}</span>
-                </a>
-              ))}
+              {response.sources.slice(0, 5).map((src, i) => {
+                const safeSourceUrl = getSafeExternalHref(src.url);
+                const sourceClassName =
+                  'inline-flex items-center gap-1 rounded border border-border-default bg-surface-tertiary px-2 py-0.5 text-xs text-text-secondary transition-colors';
+
+                return safeSourceUrl ? (
+                  <a
+                    key={i}
+                    href={safeSourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${sourceClassName} hover:text-text-primary`}
+                    title={src.url}
+                  >
+                    <span className="max-w-[160px] truncate">{src.title}</span>
+                  </a>
+                ) : (
+                  <span key={i} className={sourceClassName} title={src.url}>
+                    <span className="max-w-[160px] truncate">{src.title}</span>
+                  </span>
+                );
+              })}
             </div>
           )}
         </div>

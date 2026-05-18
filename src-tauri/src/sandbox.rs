@@ -272,18 +272,39 @@ fn create_windows_sandbox_config(project_path: &str) -> Result<String, String> {
     let config_path = config_dir.join(format!("session-{timestamp}.wsb"));
 
     let escaped_project_path = escape_windows_sandbox_xml(project_path);
-    let host_drive = PathBuf::from(project_path)
+    // Extract a single drive letter from the host project path. Anything else
+    // (UNC shares, relative paths, oddly formed prefixes) falls back to "C" to
+    // keep the synthesized sandbox workspace path well-formed.
+    let host_drive_letter = PathBuf::from(project_path)
         .components()
         .next()
-        .map(|component| component.as_os_str().to_string_lossy().to_string())
-        .unwrap_or_else(|| "C:".to_string());
+        .and_then(|component| {
+            let raw = component.as_os_str().to_string_lossy().to_string();
+            let trimmed = raw.trim_end_matches(':');
+            // Accept only single ASCII letters (e.g. "C", "D"); reject UNC etc.
+            if trimmed.len() == 1
+                && trimmed
+                    .chars()
+                    .next()
+                    .map(|c| c.is_ascii_alphabetic())
+                    .unwrap_or(false)
+            {
+                Some(trimmed.to_ascii_uppercase())
+            } else {
+                None
+            }
+        })
+        .unwrap_or_else(|| "C".to_string());
     let sandbox_workspace = format!(
         r#"C:\Users\WDAGUtilityAccount\Desktop\{}Workspace"#,
-        host_drive.trim_end_matches(':')
+        host_drive_letter
     );
     let escaped_sandbox_workspace = escape_windows_sandbox_xml(&sandbox_workspace);
+    // NOTE: PowerShell -Command argument must be a balanced quoted string.
+    // The trailing `"` here closes the `-Command "..."` argument so the sandbox
+    // launcher does not pass a malformed command line to powershell.exe.
     let escaped_logon_command = escape_windows_sandbox_xml(&format!(
-        r#"powershell.exe -NoLogo -NoExit -Command "if (Test-Path '{sandbox_workspace}') {{ Set-Location '{sandbox_workspace}' }}"#
+        r#"powershell.exe -NoLogo -NoExit -Command "if (Test-Path '{sandbox_workspace}') {{ Set-Location '{sandbox_workspace}' }}""#
     ));
 
     let config = format!(

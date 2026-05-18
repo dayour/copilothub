@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  ArrowRight,
   BarChart3,
   BookOpen,
   Bot,
@@ -7,8 +8,9 @@ import {
   Calendar,
   Code,
   Coffee,
-  Film,
+  Command,
   FileCheck,
+  Film,
   FolderKanban,
   Fuel,
   Headphones,
@@ -25,17 +27,34 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useAppStore } from '../store/appStore';
-import { useTabStore } from '../store/tabStore';
+import { useTabStore, type TabType } from '../store/tabStore';
 import { APP_CONFIG } from '../lib/config';
 
 const URL_PROTOCOL_REGEX = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//;
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 type LauncherCard = {
   label: string;
   description: string;
   icon: LucideIcon;
   onClick: () => void;
+  badge?: string;
+  accent?: boolean;
 };
+
+type GalleryEntry = {
+  label: string;
+  category: 'Demo' | 'Showcase';
+  icon: LucideIcon;
+  tabType: TabType;
+};
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 function normalizeUrl(value: string): string {
   const trimmed = value.trim();
@@ -45,71 +64,150 @@ function normalizeUrl(value: string): string {
 }
 
 function describeWorkspace(projectPath: string | null): string {
-  if (!projectPath) {
-    return 'No project selected';
-  }
-
+  if (!projectPath) return 'No project selected';
   const segments = projectPath.split(/[\\/]/).filter(Boolean);
   return segments[segments.length - 1] ?? projectPath;
 }
+
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
 
 function SectionHeader({
   eyebrow,
   title,
   description,
+  action,
 }: {
   eyebrow: string;
   title: string;
-  description: string;
+  description?: string;
+  action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
-        {eyebrow}
+    <div className="flex items-end justify-between gap-4">
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--color-text-muted)]">
+          {eyebrow}
+        </span>
+        <h2 className="text-base font-semibold text-[var(--color-text-primary)]">{title}</h2>
+        {description && (
+          <p className="max-w-3xl text-[13px] leading-5 text-[var(--color-text-secondary)]">
+            {description}
+          </p>
+        )}
+      </div>
+      {action && <div className="shrink-0">{action}</div>}
+    </div>
+  );
+}
+
+function FeaturedCard({ card }: { card: LauncherCard }) {
+  const Icon = card.icon;
+  return (
+    <button
+      type="button"
+      onClick={card.onClick}
+      aria-label={card.label}
+      className={`group relative flex min-h-[140px] flex-col justify-between overflow-hidden rounded-2xl border px-4 py-4 text-left transition-all duration-150 ${
+        card.accent
+          ? 'border-[var(--color-accent-primary)]/50 bg-gradient-to-br from-[var(--color-accent-primary)]/15 via-[var(--color-surface-elevated)] to-[var(--color-surface-elevated)] hover:border-[var(--color-accent-primary)] hover:from-[var(--color-accent-primary)]/25'
+          : 'border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-hover)]'
+      }`}
+    >
+      <div className="flex items-start justify-between">
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+            card.accent
+              ? 'bg-[var(--color-accent-primary)]/20 text-[var(--color-accent-hover)]'
+              : 'bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)]'
+          }`}
+        >
+          <Icon className="h-5 w-5" />
+        </div>
+        {card.badge && (
+          <span className="rounded-full border border-[var(--color-border-default)] bg-[var(--color-surface-primary)]/60 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-text-secondary)]">
+            {card.badge}
+          </span>
+        )}
+      </div>
+      <div className="space-y-1">
+        <div className="flex items-center gap-1.5 text-sm font-semibold text-[var(--color-text-primary)]">
+          {card.label}
+          <ArrowRight className="h-3.5 w-3.5 translate-x-0 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-60" />
+        </div>
+        <p className="text-[13px] leading-5 text-[var(--color-text-secondary)]">
+          {card.description}
+        </p>
+      </div>
+    </button>
+  );
+}
+
+function GalleryTile({ entry, onClick }: { entry: GalleryEntry; onClick: () => void }) {
+  const Icon = entry.icon;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={entry.label}
+      className="group flex h-full flex-col items-start gap-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-surface-elevated)]/70 px-3 py-3 text-left transition-all hover:border-[var(--color-border-strong)] hover:bg-[var(--color-surface-hover)]"
+    >
+      <div className="flex w-full items-center justify-between">
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)] group-hover:text-[var(--color-accent-hover)]">
+          <Icon className="h-3.5 w-3.5" />
+        </div>
+        <span className="text-[9px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+          {entry.category}
+        </span>
+      </div>
+      <span className="text-[13px] font-medium leading-tight text-[var(--color-text-primary)]">
+        {entry.label}
       </span>
-      <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">{title}</h2>
-      <p className="max-w-3xl text-sm text-[var(--color-text-secondary)]">{description}</p>
-    </div>
+    </button>
   );
 }
 
-function LauncherGrid({
-  cards,
-  columns,
+function StatPill({
+  eyebrow,
+  value,
+  status,
 }: {
-  cards: LauncherCard[];
-  columns: string;
+  eyebrow: string;
+  value: string;
+  status?: 'ready' | 'idle' | 'warning';
 }) {
+  const dotColor =
+    status === 'ready'
+      ? 'bg-[var(--color-status-success)]'
+      : status === 'warning'
+      ? 'bg-[var(--color-status-warning)]'
+      : 'bg-[var(--color-text-muted)]';
   return (
-    <div className={`grid grid-cols-1 gap-3 ${columns}`}>
-      {cards.map((card) => {
-        const Icon = card.icon;
-        const descriptionId = `launcher-${card.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-
-        return (
-          <button
-            key={card.label}
-            type="button"
-            onClick={card.onClick}
-            aria-label={card.label}
-            aria-describedby={descriptionId}
-            className="group flex min-h-[124px] flex-col items-start gap-3 rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-4 text-left transition-all hover:border-[var(--color-border-focus)] hover:bg-[var(--color-surface-hover)]"
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-surface-secondary)] text-[var(--color-text-primary)]">
-              <Icon className="h-5 w-5" />
-            </div>
-            <div className="space-y-1">
-              <div className="text-sm font-semibold text-[var(--color-text-primary)]">{card.label}</div>
-              <p id={descriptionId} className="text-sm leading-5 text-[var(--color-text-secondary)]">
-                {card.description}
-              </p>
-            </div>
-          </button>
-        );
-      })}
+    <div className="flex flex-col gap-1 rounded-xl border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)]/70 px-3.5 py-2.5">
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
+        {status && <span className={`h-1.5 w-1.5 rounded-full ${dotColor}`} aria-hidden />}
+        {eyebrow}
+      </div>
+      <div className="truncate text-sm font-medium text-[var(--color-text-primary)]">{value}</div>
     </div>
   );
 }
+
+function ShortcutChip({ keys, label }: { keys: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)]/80 px-2 py-1 text-[11px] text-[var(--color-text-secondary)]">
+      <kbd className="rounded border border-[var(--color-border-subtle)] bg-[var(--color-surface-primary)] px-1.5 py-0.5 font-mono text-[10px] text-[var(--color-text-primary)]">
+        {keys}
+      </kbd>
+      <span>{label}</span>
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
 
 export function NewTabPage({ tabId }: { tabId: string }) {
   const tabs = useTabStore((state) => state.tabs);
@@ -119,11 +217,9 @@ export function NewTabPage({ tabId }: { tabId: string }) {
   const currentProjectPath = useAppStore((state) => state.currentProjectPath);
 
   const [inputValue, setInputValue] = useState('');
+  const [galleryFilter, setGalleryFilter] = useState<'all' | 'Demo' | 'Showcase'>('all');
 
-  const chatTabId = useMemo(
-    () => tabs.find((tab) => tab.type === 'chat')?.id,
-    [tabs],
-  );
+  const chatTabId = useMemo(() => tabs.find((tab) => tab.type === 'chat')?.id, [tabs]);
   const workspaceLabel = useMemo(
     () => describeWorkspace(currentProjectPath),
     [currentProjectPath],
@@ -143,53 +239,60 @@ export function NewTabPage({ tabId }: { tabId: string }) {
     addTab('chat');
   };
 
-  const coreWorkspaceCards = useMemo<LauncherCard[]>(
+  // -------------------------------------------------------------------------
+  // Card data
+  // -------------------------------------------------------------------------
+
+  const primaryCards = useMemo<LauncherCard[]>(
     () => [
       {
         label: 'Open Chat',
-        description: 'Jump back into Copilot threads and action-mode conversations.',
+        description: 'Resume Copilot threads or start a new action-mode conversation.',
         icon: MessageSquare,
         onClick: handleOpenChat,
+        accent: true,
+        badge: chatTabId ? 'Active' : 'New',
       },
       {
-        label: 'New Terminal',
-        description: 'Launch a shell surface for local commands, scripts, and automation.',
+        label: 'Terminal',
+        description: 'Launch a shell for local commands, scripts, and automation.',
         icon: Terminal,
         onClick: () => addTab('terminal'),
       },
       {
         label: 'VS Code',
-        description: 'Open the code workbench and inspect the local extension bridge.',
+        description: 'Open the code workbench with the local extension bridge.',
         icon: Code,
         onClick: () => addTab('vscode'),
       },
       {
         label: 'Runbooks',
-        description: 'Create or run YAML automation sequences from the shared marketplace.',
+        description: 'Browse the YAML automation marketplace and run sequences.',
         icon: BookOpen,
         onClick: () => addTab('runbook'),
       },
     ],
-    [addTab, handleOpenChat],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleOpenChat is stable enough
+    [addTab, chatTabId],
   );
 
-  const makerCards = useMemo<LauncherCard[]>(
+  const buildCards = useMemo<LauncherCard[]>(
     () => [
       {
         label: 'Copilot Studio',
-        description: 'Open the maker surface for custom agents and orchestration design.',
+        description: 'Design custom agents, topics, and orchestration flows.',
         icon: Bot,
         onClick: () => addTab('copilot-studio'),
       },
       {
-        label: 'CoWork',
-        description: 'Track plan-checkpoint-approve-execute tasks in a dedicated operator view.',
+        label: 'CoWork Operator',
+        description: 'Plan, checkpoint, approve, and execute long-running agent work.',
         icon: BrainCircuit,
         onClick: () => addTab('cowork'),
       },
       {
         label: 'Power Platform',
-        description: 'Reach the Power Apps and Power Automate maker surfaces from CopilotHub.',
+        description: 'Open Power Apps and Power Automate maker surfaces.',
         icon: Layers3,
         onClick: () => addTab('power-platform'),
       },
@@ -197,171 +300,104 @@ export function NewTabPage({ tabId }: { tabId: string }) {
     [addTab],
   );
 
-  const demoCards = useMemo<LauncherCard[]>(
+  const galleryEntries = useMemo<GalleryEntry[]>(
     () => [
-      {
-        label: 'Calendar App',
-        description: 'Review scheduling and availability experiences in a polished sample app.',
-        icon: Calendar,
-        onClick: () => addTab('demo-calendar'),
-      },
-      {
-        label: 'Mechanic Shop',
-        description: 'Explore an operations-focused service workflow demo.',
-        icon: Wrench,
-        onClick: () => addTab('demo-mechanic'),
-      },
-      {
-        label: 'Coffee Shop POS',
-        description: 'Inspect a compact retail workflow and cashier-style interaction model.',
-        icon: Coffee,
-        onClick: () => addTab('demo-coffeeshop'),
-      },
-      {
-        label: 'Wiring Diagram',
-        description: 'Open the engineering-style visual diagram experience.',
-        icon: Zap,
-        onClick: () => addTab('demo-wiring'),
-      },
-      {
-        label: 'Studio Guide',
-        description: 'Walk through Copilot Studio guidance content inside a dedicated tab.',
-        icon: Bot,
-        onClick: () => addTab('demo-studio-guide'),
-      },
-      {
-        label: 'Adaptive Cards',
-        description: 'Prototype card layouts and content composition patterns.',
-        icon: LayoutTemplate,
-        onClick: () => addTab('demo-adaptive-cards'),
-      },
-      {
-        label: 'Media Assets',
-        description: 'Review content-management and asset-staging workflows.',
-        icon: Film,
-        onClick: () => addTab('demo-media-assets'),
-      },
-      {
-        label: 'Animations',
-        description: 'Preview motion-heavy experiences and interaction polish concepts.',
-        icon: Sparkles,
-        onClick: () => addTab('demo-animations'),
-      },
+      { label: 'Calendar App', category: 'Demo', icon: Calendar, tabType: 'demo-calendar' },
+      { label: 'Mechanic Shop', category: 'Demo', icon: Wrench, tabType: 'demo-mechanic' },
+      { label: 'Coffee Shop POS', category: 'Demo', icon: Coffee, tabType: 'demo-coffeeshop' },
+      { label: 'Wiring Diagram', category: 'Demo', icon: Zap, tabType: 'demo-wiring' },
+      { label: 'Studio Guide', category: 'Demo', icon: Bot, tabType: 'demo-studio-guide' },
+      { label: 'Adaptive Cards', category: 'Demo', icon: LayoutTemplate, tabType: 'demo-adaptive-cards' },
+      { label: 'Media Assets', category: 'Demo', icon: Film, tabType: 'demo-media-assets' },
+      { label: 'Animations', category: 'Demo', icon: Sparkles, tabType: 'demo-animations' },
+      { label: 'Coffee Coach', category: 'Showcase', icon: Coffee, tabType: 'showcase-coffee' },
+      { label: 'Power Analysis', category: 'Showcase', icon: BarChart3, tabType: 'showcase-clothing' },
+      { label: 'Claims Assistant', category: 'Showcase', icon: FileCheck, tabType: 'showcase-insurance' },
+      { label: 'IT Help Desk', category: 'Showcase', icon: Headphones, tabType: 'showcase-it-helpdesk' },
+      { label: 'Seller Prospect', category: 'Showcase', icon: Users, tabType: 'showcase-seller' },
+      { label: 'Fleet Coordinator', category: 'Showcase', icon: Truck, tabType: 'showcase-fleet' },
+      { label: 'Fuel Tracking', category: 'Showcase', icon: Fuel, tabType: 'showcase-fuel' },
     ],
-    [addTab],
+    [],
   );
 
-  const showcaseCards = useMemo<LauncherCard[]>(
-    () => [
-      {
-        label: 'Coffee Coach',
-        description: 'Customer-engagement showcase for coaching and next-best-action guidance.',
-        icon: Coffee,
-        onClick: () => addTab('showcase-coffee'),
-      },
-      {
-        label: 'Power Analysis',
-        description: 'Retail power and trend analysis assistant for merchandising scenarios.',
-        icon: BarChart3,
-        onClick: () => addTab('showcase-clothing'),
-      },
-      {
-        label: 'Claims Assistant',
-        description: 'Insurance intake and claim-handling showcase with guided workflows.',
-        icon: FileCheck,
-        onClick: () => addTab('showcase-insurance'),
-      },
-      {
-        label: 'IT Help Desk',
-        description: 'Internal support experience for troubleshooting and escalation flows.',
-        icon: Headphones,
-        onClick: () => addTab('showcase-it-helpdesk'),
-      },
-      {
-        label: 'Seller Prospect',
-        description: 'Seller-assist showcase for pipeline preparation and account research.',
-        icon: Users,
-        onClick: () => addTab('showcase-seller'),
-      },
-      {
-        label: 'Fleet Coordinator',
-        description: 'Operations showcase for dispatching, schedules, and field coordination.',
-        icon: Truck,
-        onClick: () => addTab('showcase-fleet'),
-      },
-      {
-        label: 'Fuel Tracking',
-        description: 'Fleet analytics showcase focused on utilization and fuel operations.',
-        icon: Fuel,
-        onClick: () => addTab('showcase-fuel'),
-      },
-    ],
-    [addTab],
+  const filteredGallery = useMemo(
+    () =>
+      galleryFilter === 'all'
+        ? galleryEntries
+        : galleryEntries.filter((e) => e.category === galleryFilter),
+    [galleryEntries, galleryFilter],
   );
+
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
 
   return (
-    <div className="flex h-full w-full justify-center overflow-y-auto bg-[var(--color-surface-primary)] px-6 py-8">
-      <div className="flex w-full max-w-[1120px] flex-col gap-8">
-        <section className="rounded-[28px] border border-[var(--color-border-default)] bg-[var(--color-surface-secondary)]/60 p-6 shadow-sm">
+    <div className="flex h-full w-full justify-center overflow-y-auto bg-[var(--color-surface-primary)]">
+      <div className="flex w-full max-w-[1280px] flex-col gap-6 px-8 py-8">
+        {/* Hero ------------------------------------------------------------ */}
+        <section
+          className="relative overflow-hidden rounded-3xl border border-[var(--color-border-default)] bg-[var(--color-surface-secondary)] px-7 py-7"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 0% 0%, rgba(0,120,212,0.18), transparent 55%), radial-gradient(circle at 100% 100%, rgba(43,136,216,0.12), transparent 60%)',
+          }}
+        >
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-2xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-3 py-1 text-xs font-medium text-[var(--color-text-secondary)]">
-                <FolderKanban className="h-3.5 w-3.5" />
-                Organized launch surface
+            <div className="flex min-w-0 flex-col gap-3">
+              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--color-accent-primary)]/40 bg-[var(--color-accent-primary)]/15 px-3 py-1 text-[11px] font-medium text-[var(--color-accent-hover)]">
+                <Sparkles className="h-3.5 w-3.5" />
+                Central agent hub
               </div>
-              <div>
-                <h1 className="text-4xl font-semibold tracking-tight text-[var(--color-text-primary)]">
-                  {APP_CONFIG.name}
-                </h1>
-                <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--color-text-secondary)]">
-                  Start with a browser, jump into chat, or launch maker and demo surfaces from one organized workspace
-                  hub.
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2 text-xs text-[var(--color-text-secondary)]">
-                  <span className="rounded-full border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-3 py-1">
-                    Ctrl+T Browser
-                  </span>
-                  <span className="rounded-full border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-3 py-1">
-                    Ctrl+` Terminal
-                  </span>
-                  <span className="rounded-full border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-3 py-1">
-                    Ctrl+Shift+P Palette
-                  </span>
-                  <span className="rounded-full border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-3 py-1">
-                    Ctrl+Shift+E Tabs
-                  </span>
+              <div className="flex items-center gap-3">
+                <img
+                  src="/copilot-hub-mark-glow.svg"
+                  alt="CopilotHub"
+                  draggable={false}
+                  className="h-14 w-14 shrink-0 drop-shadow-[0_0_24px_rgba(56,200,255,0.25)]"
+                />
+                <div>
+                  <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-[var(--color-text-primary)]">
+                    {APP_CONFIG.name}
+                  </h1>
+                  <p className="text-[13px] text-[var(--color-text-secondary)]">
+                    Browse, build, and orchestrate every agent surface from one workspace.
+                  </p>
                 </div>
+              </div>
+
+              {/* Stats row */}
+              <div className="mt-1 grid grid-cols-3 gap-2 lg:max-w-md">
+                <StatPill
+                  eyebrow="Project"
+                  value={workspaceLabel}
+                  status={currentProjectPath ? 'ready' : 'idle'}
+                />
+                <StatPill eyebrow="Open tabs" value={String(tabs.length)} status="ready" />
+                <StatPill
+                  eyebrow="Chat"
+                  value={chatTabId ? 'Connected' : 'Standby'}
+                  status={chatTabId ? 'ready' : 'idle'}
+                />
               </div>
             </div>
 
-            <div className="grid min-w-0 gap-3 sm:grid-cols-3 lg:w-[420px]">
-              <div className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
-                  Project
-                </div>
-                <div className="mt-2 text-sm font-medium text-[var(--color-text-primary)]">{workspaceLabel}</div>
-              </div>
-              <div className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
-                  Open tabs
-                </div>
-                <div className="mt-2 text-sm font-medium text-[var(--color-text-primary)]">{tabs.length}</div>
-              </div>
-              <div className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-4 py-3">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
-                  Chat
-                </div>
-                <div className="mt-2 text-sm font-medium text-[var(--color-text-primary)]">
-                  {chatTabId ? 'Ready' : 'Launchable'}
-                </div>
-              </div>
+            {/* Shortcut chips */}
+            <div className="flex flex-wrap gap-1.5 lg:max-w-[280px] lg:justify-end">
+              <ShortcutChip keys="Ctrl+T" label="New tab" />
+              <ShortcutChip keys="Ctrl+`" label="Terminal" />
+              <ShortcutChip keys="Ctrl+Shift+P" label="Palette" />
+              <ShortcutChip keys="Ctrl+Shift+E" label="Vertical tabs" />
+              <ShortcutChip keys="@browser" label="Action mode" />
             </div>
           </div>
 
-          <div className="mt-6 relative w-full">
+          {/* Search bar */}
+          <div className="relative mt-6 w-full">
             <Search
               className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--color-text-secondary)]"
-              aria-hidden="true"
+              aria-hidden
             />
             <input
               type="text"
@@ -373,67 +409,113 @@ export function NewTabPage({ tabId }: { tabId: string }) {
                   handleNavigate();
                 }
               }}
-              placeholder="Enter a URL to browse"
-              className="h-14 w-full rounded-full border border-[var(--color-border-default)] bg-[var(--color-surface-primary)] pl-12 pr-4 text-base text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-border-focus)]"
+              placeholder="Enter a URL or search the web..."
+              className="h-12 w-full rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-surface-primary)]/80 pl-12 pr-32 text-[14px] text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-accent-primary)] focus:bg-[var(--color-surface-primary)]"
               spellCheck={false}
               autoCapitalize="off"
               autoComplete="off"
               autoCorrect="off"
               aria-label="New tab address input"
             />
+            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+              <kbd className="rounded border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] px-2 py-0.5 font-mono text-[10px] text-[var(--color-text-secondary)]">
+                Enter
+              </kbd>
+            </div>
           </div>
         </section>
 
-        <section className="space-y-4">
+        {/* Quick Launch (primary operator surfaces) ------------------------ */}
+        <section className="space-y-3">
           <SectionHeader
-            eyebrow="Core workspace"
-            title="Jump into the primary operator surfaces"
-            description="These are the fastest ways to move from the launcher into chat, coding, terminal work, and reusable automation."
+            eyebrow="Quick launch"
+            title="Operator surfaces"
+            description="Jump into the workflows you use every day."
           />
-          <LauncherGrid cards={coreWorkspaceCards} columns="sm:grid-cols-2 xl:grid-cols-4" />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {primaryCards.map((card) => (
+              <FeaturedCard key={card.label} card={card} />
+            ))}
+          </div>
         </section>
 
-        <section className="space-y-4">
+        {/* Build surfaces ------------------------------------------------- */}
+        <section className="space-y-3">
           <SectionHeader
-            eyebrow="Maker and operations"
-            title="Open collaboration and maker surfaces"
-            description="Keep agent design, operator workflows, and Power Platform tools grouped together instead of mixing them with demos."
+            eyebrow="Build"
+            title="Maker and orchestration"
+            description="Design agents, run operator workflows, and reach Power Platform makers."
           />
-          <LauncherGrid cards={makerCards} columns="sm:grid-cols-2 xl:grid-cols-3" />
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {buildCards.map((card) => (
+              <FeaturedCard key={card.label} card={card} />
+            ))}
+          </div>
         </section>
 
-        <section className="space-y-4">
+        {/* Agent Gallery (combined demos + showcases) -------------------- */}
+        <section className="space-y-3">
           <SectionHeader
-            eyebrow="Demos"
-            title="Browse polished sample experiences"
-            description="Explore product-style demo tabs without crowding the core operational launchers."
+            eyebrow="Gallery"
+            title="Agent demos and showcases"
+            description="Polished sample experiences and role-based showcase scenarios."
+            action={
+              <div className="inline-flex rounded-lg border border-[var(--color-border-default)] bg-[var(--color-surface-elevated)] p-0.5">
+                {(['all', 'Demo', 'Showcase'] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setGalleryFilter(option)}
+                    className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                      galleryFilter === option
+                        ? 'bg-[var(--color-surface-hover)] text-[var(--color-text-primary)]'
+                        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+                    }`}
+                  >
+                    {option === 'all' ? 'All' : `${option}s`}
+                  </button>
+                ))}
+              </div>
+            }
           />
-          <LauncherGrid cards={demoCards} columns="sm:grid-cols-2 xl:grid-cols-4" />
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {filteredGallery.map((entry) => (
+              <GalleryTile
+                key={entry.tabType}
+                entry={entry}
+                onClick={() => addTab(entry.tabType)}
+              />
+            ))}
+          </div>
         </section>
 
-        <section className="space-y-4">
-          <SectionHeader
-            eyebrow="Agent showcases"
-            title="Launch role-based showcase experiences"
-            description="Industry scenarios are grouped here so the main launcher stays readable while every showcase remains one click away."
-          />
-          <LauncherGrid cards={showcaseCards} columns="sm:grid-cols-2 xl:grid-cols-4" />
+        {/* Tips strip ----------------------------------------------------- */}
+        <section className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-surface-secondary)]/60 px-5 py-4">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
+              <Command className="h-3.5 w-3.5" />
+              Tips
+            </div>
+            <ul className="flex flex-1 flex-wrap items-center gap-x-5 gap-y-1 text-[12px] text-[var(--color-text-secondary)]">
+              <li>
+                Type <span className="font-mono text-[var(--color-text-primary)]">@browser</span> in
+                action mode to control the browser
+              </li>
+              <li>Drop a folder onto the sidebar to set your project</li>
+              <li>Write runbooks in YAML to automate cross-tab workflows</li>
+            </ul>
+          </div>
         </section>
 
-        <section className="rounded-2xl border border-[var(--color-border-default)] bg-[var(--color-surface-secondary)] px-5 py-5">
-          <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">Getting Started</h2>
-          <ul className="mt-3 space-y-2 text-sm text-[var(--color-text-secondary)]">
-            <li>Press Ctrl+Shift+P for Command Palette</li>
-            <li>Press Ctrl+T for a new browser tab</li>
-            <li>Press Ctrl+` to open or focus the terminal</li>
-            <li>Press Ctrl+Shift+E to toggle vertical tabs</li>
-            <li>Type @browser in Action mode to control the browser</li>
-            <li>Create runbooks in YAML to automate workflows</li>
-          </ul>
-        </section>
-
-        <footer className="pb-2 text-xs text-[var(--color-text-secondary)]">
-          {APP_CONFIG.name} v{APP_CONFIG.version} -- {APP_CONFIG.description}
+        {/* Footer --------------------------------------------------------- */}
+        <footer className="flex items-center justify-between pb-2 text-[11px] text-[var(--color-text-muted)]">
+          <div className="flex items-center gap-2">
+            <FolderKanban className="h-3 w-3" />
+            <span>{APP_CONFIG.description}</span>
+          </div>
+          <span className="font-mono">
+            {APP_CONFIG.name} v{APP_CONFIG.version}
+          </span>
         </footer>
       </div>
     </div>

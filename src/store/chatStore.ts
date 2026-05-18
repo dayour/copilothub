@@ -52,7 +52,7 @@ export interface ChatThreadState {
   inputDraft: string;
 }
 
-export const EMPTY_CHAT_MESSAGES: ChatMessage[] = [];
+export const EMPTY_CHAT_MESSAGES: readonly ChatMessage[] = [];
 
 // ---------------------------------------------------------------------------
 // Store interface
@@ -103,8 +103,12 @@ function createMessage(role: MessageRole, content: string): ChatMessage {
 const DEFAULT_CHAT_THREAD_ID = 'default-thread';
 
 function resolveThreadId(threadId?: string | null): string {
+  const normalizedThreadId = threadId?.trim();
+  if (normalizedThreadId) {
+    return normalizedThreadId;
+  }
+
   return (
-    threadId ??
     useSessionEnvironmentStore.getState().selectedThreadId ??
     DEFAULT_CHAT_THREAD_ID
   );
@@ -144,6 +148,13 @@ function findThreadStateForMessage(
   return Object.values(state.threadStateById).find((threadState) =>
     threadState.messages.some((message) => message.id === messageId),
   );
+}
+
+function findMessageInThread(
+  threadState: ChatThreadState | undefined,
+  messageId: string,
+): ChatMessage | undefined {
+  return threadState?.messages.find((message) => message.id === messageId);
 }
 
 // ---------------------------------------------------------------------------
@@ -193,7 +204,7 @@ export const useChatStore = create<ChatStore>()(
           messageId,
           resolveThreadId(threadId),
         );
-        const msg = threadState?.messages.find((message) => message.id === messageId);
+        const msg = findMessageInThread(threadState, messageId);
         if (msg && msg.isStreaming) {
           msg.content += chunk;
         }
@@ -207,7 +218,7 @@ export const useChatStore = create<ChatStore>()(
           messageId,
           resolveThreadId(threadId),
         );
-        const msg = threadState?.messages.find((message) => message.id === messageId);
+        const msg = findMessageInThread(threadState, messageId);
         if (msg) {
           msg.isStreaming = false;
         }
@@ -227,7 +238,7 @@ export const useChatStore = create<ChatStore>()(
           messageId,
           resolveThreadId(threadId),
         );
-        const msg = threadState?.messages.find((message) => message.id === messageId);
+        const msg = findMessageInThread(threadState, messageId);
         if (msg) {
           msg.toolCalls.push(toolCall);
         }
@@ -246,7 +257,7 @@ export const useChatStore = create<ChatStore>()(
           messageId,
           resolveThreadId(threadId),
         );
-        const msg = threadState?.messages.find((message) => message.id === messageId);
+        const msg = findMessageInThread(threadState, messageId);
         if (!msg) return;
         const tc = msg.toolCalls.find((t) => t.id === toolCallId);
         if (tc) {

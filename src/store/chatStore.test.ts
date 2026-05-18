@@ -171,6 +171,20 @@ describe('chatStore', () => {
     expect(secondaryState.messages).toHaveLength(2);
   });
 
+  it('falls back to the selected thread when callers pass a blank thread id', () => {
+    const selectedThreadId = useSessionEnvironmentStore.getState().selectedThreadId as string;
+    const store = useChatStore.getState();
+
+    store.setInputDraft('blank-target draft', '   ');
+    const assistantId = store.sendMessage('blank-target message', '');
+
+    const selectedState = useChatStore.getState().getThreadState(selectedThreadId);
+    expect(selectedState.inputDraft).toBe('');
+    expect(selectedState.messages[0].content).toBe('blank-target message');
+    expect(selectedState.messages[1].id).toBe(assistantId);
+    expect(useChatStore.getState().threadStateById['']).toBeUndefined();
+  });
+
   it('processing stays true while another message is still streaming in the same thread', () => {
     const threadId = useSessionEnvironmentStore.getState().selectedThreadId;
     const store = useChatStore.getState();

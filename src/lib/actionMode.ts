@@ -10,6 +10,13 @@ export interface ActionResult {
   error?: string;
 }
 
+interface ActionToolResponse {
+  success?: boolean;
+  content?: unknown;
+  output?: unknown;
+  error?: unknown;
+}
+
 function normalizeInput(input: string): string {
   return input.trim();
 }
@@ -298,7 +305,7 @@ function stringifyOutput(content: unknown): string {
 
 export async function executeAction(
   command: ActionCommand,
-  mcpClient: { callTool: (name: string, args: Record<string, unknown>) => Promise<any> },
+  mcpClient: { callTool: (name: string, args: Record<string, unknown>) => Promise<ActionToolResponse> },
 ): Promise<ActionResult> {
   try {
     const response = await mcpClient.callTool(command.tool, command.args);

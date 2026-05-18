@@ -12,15 +12,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { useTabStore } from '../store/tabStore';
 import { isMicrosoftPanelTab } from '../lib/microsoftPanels';
 import { isTauri } from '../lib/tauri';
-
-const URL_PROTOCOL_REGEX = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//;
-
-function normalizeUrl(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return trimmed;
-  if (URL_PROTOCOL_REGEX.test(trimmed)) return trimmed;
-  return `https://${trimmed}`;
-}
+import { getSafeExternalHref, normalizeUrlForNavigation } from '../lib/urlSafety';
 
 export function AddressBar() {
   const activeTab = useTabStore((state) => state.activeTab());
@@ -51,7 +43,7 @@ export function AddressBar() {
   }
 
   const handleSubmitUrl = () => {
-    const nextUrl = normalizeUrl(inputValue);
+    const nextUrl = normalizeUrlForNavigation(inputValue);
     if (!nextUrl) {
       setInputValue(activeTab.url);
       return;
@@ -85,6 +77,7 @@ export function AddressBar() {
   };
 
   const isSecure = activeTab.url.startsWith('https://');
+  const externalHref = getSafeExternalHref(activeTab.url);
 
   return (
     <div
@@ -175,9 +168,9 @@ export function AddressBar() {
         />
       </div>
 
-      {!isTauri && activeTab.url && (
+      {!isTauri && externalHref && (
         <a
-          href={activeTab.url}
+          href={externalHref}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex h-7 w-7 items-center justify-center rounded text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]"

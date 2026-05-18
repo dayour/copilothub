@@ -25,6 +25,7 @@ import {
 import { getVsCodeServerStatus, startVsCodeServer, type VsCodeServerStatus } from '../lib/vscodeServer';
 import { useTauriWebview } from '../hooks/useTauriWebview';
 import { useAppStore } from '../store/appStore';
+import { getSafeExternalHref } from '../lib/urlSafety';
 
 interface VSCodeTabProps {
   tabId: string;
@@ -251,6 +252,7 @@ export function VSCodeTab({ tabId, isActive }: VSCodeTabProps) {
     [currentProjectPath, serverStatus.localUrl],
   );
   const effectiveUrl = serverStatus.healthy ? localWorkbenchUrl : APP_CONFIG.vsCodeUrl;
+  const safeEffectiveExternalUrl = getSafeExternalHref(effectiveUrl);
   const connectionMode = resolveVsCodeConnectionMode(serverStatus.healthy);
   const { isTauri } = useTauriWebview(`vscode-${tabId}`, effectiveUrl, isActive, containerRef);
   const requiresExternalBrowserFallback = !isTauri && !serverStatus.healthy;
@@ -743,14 +745,20 @@ export function VSCodeTab({ tabId, isActive }: VSCodeTabProps) {
                   start a local VS Code server to render the workbench inline inside CopilotHub.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
-                  <a
-                    href={effectiveUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-md border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-text-primary transition hover:bg-white/15"
-                  >
-                    Open VS Code
-                  </a>
+                  {safeEffectiveExternalUrl ? (
+                    <a
+                      href={safeEffectiveExternalUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-md border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-text-primary transition hover:bg-white/15"
+                    >
+                      Open VS Code
+                    </a>
+                  ) : (
+                    <span className="rounded-md border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-text-secondary">
+                      Open VS Code
+                    </span>
+                  )}
                   <div className="rounded-md border border-white/10 bg-surface-primary px-3 py-1.5 text-xs text-text-secondary">
                     Start the local server to restore inline embedding.
                   </div>
