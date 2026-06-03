@@ -26,6 +26,8 @@ export interface Tab {
   historyStack: string[];
   /** Current position within historyStack (-1 means empty). */
   historyIndex: number;
+  /** Monotonic signal for explicit reloads of the current URL. */
+  reloadNonce?: number;
   isLoading: boolean;
   canGoBack: boolean;
   canGoForward: boolean;
@@ -50,6 +52,7 @@ export interface TabStore {
   setActiveTab: (id: string) => void;
   updateTabTitle: (id: string, title: string) => void;
   updateTabUrl: (id: string, url: string) => void;
+  requestTabReload: (id: string) => void;
   syncTabUrlFromHost: (id: string, url: string) => void;
   updateTabFavicon: (id: string, favicon: string) => void;
   setTabLoading: (id: string, loading: boolean) => void;
@@ -118,6 +121,7 @@ function createTab(type: TabType, url?: string): Tab {
     isPinned: false,
     historyStack: resolvedUrl ? [resolvedUrl] : [],
     historyIndex: resolvedUrl ? 0 : -1,
+    reloadNonce: 0,
     isLoading: false,
     canGoBack: false,
     canGoForward: false,
@@ -128,6 +132,10 @@ function createTab(type: TabType, url?: string): Tab {
 function refreshHistoryFlags(tab: Tab): void {
   tab.canGoBack = tab.historyIndex > 0;
   tab.canGoForward = tab.historyIndex < tab.historyStack.length - 1;
+}
+
+function bumpReloadNonce(tab: Tab): void {
+  tab.reloadNonce = (tab.reloadNonce ?? 0) + 1;
 }
 
 // ---------------------------------------------------------------------------
@@ -221,8 +229,9 @@ export const useTabStore = create<TabStore>()(
 
         // Push to history stack, truncating any forward history
         if (tab.historyIndex >= 0 && tab.historyStack[tab.historyIndex] === url) {
-          // Same URL -- no history change
           tab.url = url;
+          bumpReloadNonce(tab);
+          refreshHistoryFlags(tab);
           return;
         }
         tab.historyStack = tab.historyStack.slice(0, tab.historyIndex + 1);
@@ -230,6 +239,14 @@ export const useTabStore = create<TabStore>()(
         tab.historyIndex = tab.historyStack.length - 1;
         tab.url = url;
         refreshHistoryFlags(tab);
+      });
+    },
+
+    requestTabReload: (id: string) => {
+      set((state) => {
+        const tab = state.tabs.find((t) => t.id === id);
+        if (!tab || (tab.type !== 'browser' && !isMicrosoftPanelTab(tab.type)) || !tab.url) return;
+        bumpReloadNonce(tab);
       });
     },
 

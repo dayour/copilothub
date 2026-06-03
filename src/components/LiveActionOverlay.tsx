@@ -11,6 +11,7 @@ import {
   Camera,
   Eye,
   Loader2,
+  Sparkles,
   X,
 } from 'lucide-react';
 
@@ -44,6 +45,8 @@ function actionIcon(type: BrowserActionType) {
     case 'snapshot':
     case 'observe':
       return Eye;
+    case 'polish':
+      return Sparkles;
     default:
       return Loader2;
   }
@@ -82,6 +85,8 @@ function describeAction(action: BrowserAction): string {
       return 'Observing page state';
     case 'follow-me':
       return 'Recording actions';
+    case 'polish':
+      return 'Picking and polishing the UI layer';
     default:
       return `Executing ${action.toolName}`;
   }

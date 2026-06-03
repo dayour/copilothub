@@ -6,6 +6,29 @@ import { useBrowserActionStore } from '../store/browserActionStore';
 describe('MCPClient', () => {
   let mockFetch: ReturnType<typeof vi.fn>;
 
+  function mockSseResponse(payloads: string[]): Response {
+    const encoder = new TextEncoder();
+    const chunks = payloads.map((payload) => encoder.encode(payload));
+    let index = 0;
+    const reader = {
+      read: vi.fn(async () => {
+        const value = chunks[index];
+        index += 1;
+        return value ? { done: false, value } : { done: true, value: undefined };
+      }),
+      cancel: vi.fn().mockResolvedValue(undefined),
+    };
+
+    return {
+      ok: true,
+      status: 200,
+      body: {
+        getReader: () => reader,
+        cancel: vi.fn().mockResolvedValue(undefined),
+      },
+    } as unknown as Response;
+  }
+
   beforeEach(() => {
     mockFetch = vi.fn();
     vi.stubGlobal('fetch', mockFetch);
@@ -92,6 +115,54 @@ describe('MCPClient', () => {
     expect(result.success).toBe(true);
     expect(result.isError).toBe(false);
     expect(result.content).toBe('tool ok');
+  });
+
+  it('callTool unwraps JSON-RPC result payloads', async () => {
+    const client = new MCPClient();
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        result: {
+          content: [{ type: 'text', text: '{"ok":true}' }],
+        },
+      }),
+    } as Response);
+
+    const result = await client.callTool('browser_click', { selector: '.btn' });
+    expect(result.success).toBe(true);
+    expect(result.content).toEqual({ ok: true });
+  });
+
+  it('callTool rejects MCP isError payloads', async () => {
+    const client = new MCPClient();
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        content: [{ type: 'text', text: 'selector not found' }],
+        isError: true,
+      }),
+    } as Response);
+
+    const result = await client.callTool('browser_click', { selector: '.missing' });
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('selector not found');
+  });
+
+  it('callTool rejects success-shaped preview payloads', async () => {
+    const client = new MCPClient();
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        content: [{ type: 'text', text: '{"status":"preview","executed":false}' }],
+      }),
+    } as Response);
+
+    const result = await client.callTool('browser_click', { selector: '.btn' });
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('preview');
   });
 
   it('callTool HTTP error returns failure response', async () => {
@@ -247,6 +318,18 @@ describe('MCPClient', () => {
     expect(result.success).toBe(false);
     expect(result.isError).toBe(true);
     expect(result.error).toContain('timed out after 50ms');
+  });
+
+  it('streamTool rejects an error event even if the stream later emits text', async () => {
+    const client = new MCPClient();
+    mockFetch.mockResolvedValue(mockSseResponse([
+      'data: {"content":[{"type":"text","text":"preview only"}],"isError":true}\n\n',
+      'data: {"content":[{"type":"text","text":"later ok"}]}\n\n',
+    ]));
+
+    const result = await client.streamTool('browser_click', { selector: '.btn' }, vi.fn());
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('preview only');
   });
 
   it('tracks browser actions against the explicit target session when provided', async () => {

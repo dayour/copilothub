@@ -100,6 +100,16 @@ describe('AddressBar', () => {
     expect(browserTab?.url).toBe('https://example.com');
   });
 
+  it('refresh button emits a reload signal for browser-host tabs', () => {
+    render(<AddressBar />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+
+    const browserTab = useTabStore.getState().tabs.find((tab) => tab.id === 'browser-tab');
+    expect(browserTab?.reloadNonce).toBe(1);
+    expect(browserTab?.isLoading).toBe(true);
+  });
+
   it('back button disabled when canGoBack is false', () => {
     render(<AddressBar />);
     expect(screen.getByRole('button', { name: 'Go back' })).toBeDisabled();
@@ -141,4 +151,3 @@ describe('AddressBar', () => {
     );
   });
 });
-

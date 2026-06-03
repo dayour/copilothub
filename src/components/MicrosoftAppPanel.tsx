@@ -128,7 +128,7 @@ export function MicrosoftAppPanel({
 
   const handleSignIn = useCallback(() => {
     void entraAuth.login().catch(() => {
-      openSettingsPanel();
+      openSettingsPanel('integrations');
     });
   }, [openSettingsPanel]);
 
@@ -201,7 +201,7 @@ export function MicrosoftAppPanel({
             )}
             <button
               type="button"
-              onClick={openSettingsPanel}
+              onClick={() => openSettingsPanel('integrations')}
               className="inline-flex items-center gap-2 rounded-md border border-default bg-surface-primary px-3 py-1.5 text-sm text-text-primary transition-colors hover:bg-surface-hover"
             >
               <Settings2 size={14} />
@@ -271,7 +271,7 @@ export function MicrosoftAppPanel({
               </button>
               <button
                 type="button"
-                onClick={openSettingsPanel}
+                onClick={() => openSettingsPanel('integrations')}
                 className="inline-flex items-center gap-2 rounded-md border border-default bg-surface-primary px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-surface-hover"
               >
                 <Settings2 size={14} />

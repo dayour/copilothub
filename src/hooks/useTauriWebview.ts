@@ -32,6 +32,7 @@ export function useTauriWebview(
   url: string,
   isActive: boolean,
   containerRef: React.RefObject<HTMLDivElement | null>,
+  reloadNonce = 0,
 ) {
   const label = `browser-${tabId}`;
   const createdRef = useRef(false);
@@ -40,6 +41,7 @@ export function useTauriWebview(
   const disposedRef = useRef(false);
   const lastUrlRef = useRef('');
   const pendingUrlRef = useRef('');
+  const lastReloadNonceRef = useRef(reloadNonce);
   const isActiveRef = useRef(isActive);
   const animationFrameRef = useRef<number | null>(null);
   const navigationUnlistenRef = useRef<null | (() => void)>(null);
@@ -252,6 +254,16 @@ export function useTauriWebview(
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [label, url]);
+
+  useEffect(() => {
+    if (!isTauri) return;
+    if (lastReloadNonceRef.current === reloadNonce) return;
+
+    lastReloadNonceRef.current = reloadNonce;
+
+    if (!createdRef.current || !url || url === 'about:blank') return;
+    invoke('browser_reload', { label }).catch(console.error);
+  }, [label, reloadNonce, url]);
 
   // -- Visibility: show/hide based on active tab ----------------------------
   useEffect(() => {

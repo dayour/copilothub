@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 import { useTabStore, type TabType } from './tabStore';
 
 // ---------------------------------------------------------------------------
@@ -18,6 +18,10 @@ export interface SavedTab {
   url: string;
   favicon: string;
   isPinned: boolean;
+  isActive?: boolean;
+  historyStack?: string[];
+  historyIndex?: number;
+  reloadNonce?: number;
 }
 
 export interface Workspace {
@@ -44,6 +48,26 @@ export const WORKSPACE_COLORS = [
   { name: 'Gray', value: '#69797e' },
 ] as const;
 
+const memoryStorage: StateStorage = {
+  getItem: () => null,
+  setItem: () => undefined,
+  removeItem: () => undefined,
+};
+
+function getWorkspaceStorage(): StateStorage {
+  if (
+    typeof window !== 'undefined' &&
+    window.localStorage &&
+    typeof window.localStorage.getItem === 'function' &&
+    typeof window.localStorage.setItem === 'function' &&
+    typeof window.localStorage.removeItem === 'function'
+  ) {
+    return window.localStorage;
+  }
+
+  return memoryStorage;
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -62,7 +86,29 @@ function snapshotCurrentTabs(): SavedTab[] {
     url: t.url,
     favicon: t.favicon,
     isPinned: t.isPinned,
+    isActive: t.isActive,
+    historyStack: [...t.historyStack],
+    historyIndex: t.historyIndex,
+    reloadNonce: t.reloadNonce ?? 0,
   }));
+}
+
+function normalizeHistory(tab: SavedTab): { historyStack: string[]; historyIndex: number } {
+  const historyStack = Array.isArray(tab.historyStack)
+    ? tab.historyStack.filter((entry): entry is string => typeof entry === 'string')
+    : tab.url
+      ? [tab.url]
+      : [];
+
+  if (historyStack.length === 0) {
+    return { historyStack: [], historyIndex: -1 };
+  }
+
+  const requestedIndex = typeof tab.historyIndex === 'number' && Number.isInteger(tab.historyIndex)
+    ? tab.historyIndex
+    : historyStack.length - 1;
+  const historyIndex = Math.min(historyStack.length - 1, Math.max(0, requestedIndex));
+  return { historyStack, historyIndex };
 }
 
 function restoreTabsFromSnapshot(saved: SavedTab[]): void {
@@ -82,11 +128,23 @@ function restoreTabsFromSnapshot(saved: SavedTab[]): void {
     return;
   }
 
+  const savedActive = saved.find((s) => s.isActive);
+  let activeRestoredTabId: string | null = null;
+  let firstRestoredTabId: string | null = null;
+
   // Restore saved tabs (skip chat tabs -- the persistent one already exists)
-  let first = true;
   for (const s of saved) {
-    if (s.type === 'chat' && s.isPinned) continue;
-    store.addTab(s.type, s.url || undefined);
+    if (s.type === 'chat' && s.isPinned) {
+      if (s.isActive) {
+        const chatTab = useTabStore.getState().tabs.find((tab) => tab.type === 'chat' && tab.isPinned);
+        activeRestoredTabId = chatTab?.id ?? activeRestoredTabId;
+      }
+      continue;
+    }
+
+    const { historyStack, historyIndex } = normalizeHistory(s);
+    const resolvedUrl = historyStack[historyIndex] ?? s.url;
+    store.addTab(s.type, resolvedUrl || undefined);
 
     // The newly added tab is now active; update its title and favicon
     const latest = useTabStore.getState();
@@ -95,14 +153,33 @@ function restoreTabsFromSnapshot(saved: SavedTab[]): void {
       latest.updateTabTitle(newest.id, s.title);
       if (s.favicon) latest.updateTabFavicon(newest.id, s.favicon);
       if (s.isPinned) latest.pinTab(newest.id);
+      useTabStore.setState((tabState) => ({
+        tabs: tabState.tabs.map((tab) => (
+          tab.id === newest.id
+            ? {
+                ...tab,
+                url: resolvedUrl,
+                historyStack,
+                historyIndex,
+                reloadNonce: s.reloadNonce ?? 0,
+                canGoBack: historyIndex > 0,
+                canGoForward: historyIndex < historyStack.length - 1,
+              }
+            : tab
+        )),
+      }));
 
-      // Activate the first restored tab
-      if (first) {
-        latest.setActiveTab(newest.id);
-        first = false;
-      }
+      firstRestoredTabId ??= newest.id;
+      if (savedActive === s) activeRestoredTabId = newest.id;
     }
   }
+
+  if (!firstRestoredTabId && !activeRestoredTabId) {
+    store.addTab('browser');
+    return;
+  }
+
+  store.setActiveTab(activeRestoredTabId ?? firstRestoredTabId ?? useTabStore.getState().activeTab()?.id ?? '');
 }
 
 function createDefaultWorkspace(): Workspace {
@@ -298,6 +375,10 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
             url: b.url,
             favicon: '',
             isPinned: false,
+            isActive: false,
+            historyStack: [b.url],
+            historyIndex: 0,
+            reloadNonce: 0,
           }));
 
           set((state) => {
@@ -346,6 +427,7 @@ export const useWorkspaceStore = create<WorkspaceStore>()(
     }),
     {
       name: 'copilothub-workspaces',
+      storage: createJSONStorage(getWorkspaceStorage),
       // Only persist workspace data, not transient UI state
       partialize: (state) => ({
         workspaces: state.workspaces,

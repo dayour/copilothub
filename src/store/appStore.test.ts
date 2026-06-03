@@ -14,6 +14,7 @@ describe('appStore', () => {
       sidecarStatus: 'stopped',
       commandPaletteOpen: false,
       settingsPanelOpen: false,
+      settingsSelectedSection: 'general',
       copilotSidebarOpen: false,
       assistantPaneMode: 'copilot',
       isAuthenticated: false,
@@ -87,6 +88,22 @@ describe('appStore', () => {
     const state = useAppStore.getState();
     expect(state.settingsPanelOpen).toBe(true);
     expect(state.commandPaletteOpen).toBe(false);
+  });
+
+  it('opens settings directly to a selected section', () => {
+    useAppStore.setState({ commandPaletteOpen: true });
+
+    useAppStore.getState().openSettingsPanel('integrations');
+
+    const state = useAppStore.getState();
+    expect(state.settingsPanelOpen).toBe(true);
+    expect(state.settingsSelectedSection).toBe('integrations');
+    expect(state.commandPaletteOpen).toBe(false);
+  });
+
+  it('updates the selected settings section independently', () => {
+    useAppStore.getState().setSettingsSection('environment');
+    expect(useAppStore.getState().settingsSelectedSection).toBe('environment');
   });
 
   it('toggleProjectSidebar flips collapsed state', () => {

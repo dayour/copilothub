@@ -194,9 +194,9 @@ function LazyTabFrame({
   );
 }
 
-function BrowserTabContent({ tab }: { tab: { id: string; url: string; isActive: boolean } }) {
+function BrowserTabContent({ tab }: { tab: { id: string; url: string; isActive: boolean; reloadNonce?: number } }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { isTauri: tauriMode } = useTauriWebview(tab.id, tab.url, tab.isActive, containerRef);
+  const { isTauri: tauriMode } = useTauriWebview(tab.id, tab.url, tab.isActive, containerRef, tab.reloadNonce ?? 0);
 
   const handleIframeLoad = useCallback((e: React.SyntheticEvent<HTMLIFrameElement>) => {
     const store = useTabStore.getState();
@@ -243,7 +243,7 @@ function BrowserTabContent({ tab }: { tab: { id: string; url: string; isActive: 
       style={{ display: tab.isActive ? 'block' : 'none' }}
     >
       <iframe
-        key={tab.url}
+        key={`${tab.url}:${tab.reloadNonce ?? 0}`}
         src={tab.url}
         className="w-full h-full border-0"
         title={`Browser tab ${tab.id}`}
@@ -386,7 +386,7 @@ function App() {
                   return (
                     <BrowserTabContent
                       key={tab.id}
-                      tab={{ id: tab.id, url: tab.url, isActive: tab.isActive }}
+                      tab={{ id: tab.id, url: tab.url, isActive: tab.isActive, reloadNonce: tab.reloadNonce }}
                     />
                   );
                 case 'browser-use':

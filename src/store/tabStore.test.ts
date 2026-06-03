@@ -157,6 +157,33 @@ describe('tabStore', () => {
     expect(tab.canGoForward).toBe(false);
   });
 
+  it('updateTabUrl with the current URL emits a reload signal without changing history', () => {
+    const store = useTabStore.getState();
+    const id = 'browser-tab';
+
+    store.updateTabUrl(id, 'https://a.com');
+    const before = useTabStore.getState().tabs.find((t) => t.id === id) as Tab;
+
+    store.updateTabUrl(id, 'https://a.com');
+
+    const after = useTabStore.getState().tabs.find((t) => t.id === id) as Tab;
+    expect(after.historyStack).toEqual(['https://a.com']);
+    expect(after.historyIndex).toBe(0);
+    expect(after.reloadNonce).toBe((before.reloadNonce ?? 0) + 1);
+  });
+
+  it('requestTabReload emits a reload signal for the active browser URL', () => {
+    const store = useTabStore.getState();
+    store.updateTabUrl('browser-tab', 'https://a.com');
+    const before = useTabStore.getState().tabs.find((t) => t.id === 'browser-tab') as Tab;
+
+    store.requestTabReload('browser-tab');
+
+    const after = useTabStore.getState().tabs.find((t) => t.id === 'browser-tab') as Tab;
+    expect(after.url).toBe('https://a.com');
+    expect(after.reloadNonce).toBe((before.reloadNonce ?? 0) + 1);
+  });
+
   it('navigateBack and navigateForward move through history and update flags', () => {
     const store = useTabStore.getState();
     const id = 'browser-tab';

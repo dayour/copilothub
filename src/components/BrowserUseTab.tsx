@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import { useState, useCallback } from 'react';
-import { Globe, Circle, Camera, Square } from 'lucide-react';
+import { Globe, Circle, Camera, Square, Sparkles } from 'lucide-react';
 import mcpClient from '../lib/mcpClient';
 import { useBrowserActionStore } from '../store/browserActionStore';
 import { ActionTimeline } from './ActionTimeline';
@@ -17,6 +17,7 @@ import { LiveActionOverlay } from './LiveActionOverlay';
 export function BrowserUseTab({ isActive }: { isActive: boolean }) {
   const [url, setUrl] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [polishStatus, setPolishStatus] = useState<string | null>(null);
 
   const currentSessionId = useBrowserActionStore((s) => s.currentSessionId);
 
@@ -46,6 +47,65 @@ export function BrowserUseTab({ isActive }: { isActive: boolean }) {
     await mcpClient.screenshot();
   }, []);
 
+  const handlePickAndPolish = useCallback(async () => {
+    const actionStore = useBrowserActionStore.getState();
+    const target = url.trim() || 'active browser surface';
+    const sessionId = currentSessionId ?? undefined;
+    const startedAt = Date.now();
+
+    actionStore.pushAction({
+      type: 'polish',
+      toolName: 'browser_pick_polish',
+      status: 'running',
+      args: {
+        target,
+        copilotLayer: 'CopilotHub Browser Use',
+        objectRole: 'UI layer',
+        modelRole: 'Pick & Polish intent manifest',
+      },
+      sessionId,
+    });
+
+    const actions = useBrowserActionStore.getState().actions;
+    const actionId = actions[actions.length - 1]?.id;
+    setPolishStatus('Observing the current UI layer...');
+
+    const observation = await mcpClient.callTool('browser_observe', {}, { targetSessionId: sessionId });
+    const latestStore = useBrowserActionStore.getState();
+
+    if (!observation.success) {
+      if (actionId) {
+        latestStore.updateAction(actionId, {
+          status: 'error',
+          endTime: Date.now(),
+          error: observation.error ?? 'Unable to observe the current UI layer.',
+        });
+      }
+      setPolishStatus('Pick & Polish needs a connected browser sidecar before it can inspect the UI.');
+      return;
+    }
+
+    const observationText =
+      typeof observation.content === 'string'
+        ? observation.content
+        : JSON.stringify(observation.content);
+
+    if (actionId) {
+      latestStore.updateAction(actionId, {
+        status: 'completed',
+        endTime: Date.now(),
+        result: JSON.stringify({
+          intent: 'Pick a high-impact UI-layer improvement and prepare a safe polishing pass.',
+          target,
+          observation: observationText,
+          durationMs: Date.now() - startedAt,
+        }, null, 2),
+      });
+    }
+
+    setPolishStatus('Pick & Polish captured the UI context and recorded a polishing intent in the action timeline.');
+  }, [currentSessionId, url]);
+
   return (
     <div
       className="flex flex-col w-full h-full"
@@ -74,6 +134,19 @@ export function BrowserUseTab({ isActive }: { isActive: boolean }) {
                      hover:bg-accent-primary/90 transition-colors"
         >
           Go
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            void handlePickAndPolish();
+          }}
+          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border-subtle bg-surface-primary px-3 text-xs font-medium text-text-primary transition-colors hover:bg-surface-hover"
+          aria-label="Pick and polish current UI layer"
+          title="Observe the current UI and record a Pick & Polish intent"
+        >
+          <Sparkles size={14} />
+          Pick &amp; Polish
         </button>
 
         {/* Session indicator */}
@@ -120,6 +193,11 @@ export function BrowserUseTab({ isActive }: { isActive: boolean }) {
               <p className="text-sm">
                 Browser viewport — connect sidecar to enable live view
               </p>
+              {polishStatus && (
+                <p className="mx-auto max-w-md text-xs leading-5 text-text-secondary">
+                  {polishStatus}
+                </p>
+              )}
             </div>
           </div>
           {/* Live action overlay */}

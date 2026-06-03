@@ -60,13 +60,21 @@ interface MCPContentItem {
   [key: string]: unknown;
 }
 
+interface MCPErrorPayload {
+  message?: string;
+  code?: number;
+  [key: string]: unknown;
+}
+
 /**
  * Raw JSON response from the MCP server on POST /mcp.
  */
 interface MCPRawResponse {
-  content?: MCPContentItem[];
+  content?: MCPContentItem[] | string | Record<string, unknown>;
   isError?: boolean;
-  error?: { message?: string; code?: number };
+  error?: MCPErrorPayload | string;
+  result?: MCPRawResponse;
+  [key: string]: unknown;
 }
 
 // ---------------------------------------------------------------------------
@@ -204,32 +212,119 @@ export class MCPClient {
     this.activeAbortControllers.delete(controller);
   }
 
+  private asRecord(value: unknown): Record<string, unknown> | null {
+    return typeof value === 'object' && value !== null && !Array.isArray(value)
+      ? value as Record<string, unknown>
+      : null;
+  }
+
+  private normalizeRawResponse(raw: unknown): MCPRawResponse {
+    const record = this.asRecord(raw);
+    if (!record) {
+      return {
+        isError: true,
+        error: { message: 'MCP server returned a non-object JSON response' },
+      };
+    }
+
+    const result = this.asRecord(record.result);
+    if (result) {
+      return {
+        ...result,
+        error: record.error ?? result.error,
+      } as MCPRawResponse;
+    }
+
+    return record as MCPRawResponse;
+  }
+
+  private formatError(error: unknown): string | undefined {
+    if (typeof error === 'string') return error;
+    const record = this.asRecord(error);
+    if (!record) return undefined;
+    if (typeof record.message === 'string') return record.message;
+    return JSON.stringify(record);
+  }
+
+  private parseTextContent(text: string): string | Record<string, unknown> {
+    try {
+      const parsed = JSON.parse(text) as unknown;
+      return this.asRecord(parsed) ?? text;
+    } catch {
+      return text;
+    }
+  }
+
+  private extractContent(raw: MCPRawResponse): string | Record<string, unknown> {
+    if (typeof raw.content === 'string') {
+      return this.parseTextContent(raw.content);
+    }
+
+    const recordContent = this.asRecord(raw.content);
+    if (recordContent) {
+      return recordContent;
+    }
+
+    if (Array.isArray(raw.content) && raw.content.length > 0) {
+      const first = raw.content[0];
+      if (first.type === 'text' && typeof first.text === 'string') {
+        return this.parseTextContent(first.text);
+      }
+
+      const { type: _type, ...rest } = first;
+      return rest as Record<string, unknown>;
+    }
+
+    return '';
+  }
+
+  private detectContentError(content: string | Record<string, unknown>): string | undefined {
+    if (typeof content === 'string') {
+      const normalized = content.toLowerCase();
+      if (
+        /\b(preview only|dry run|dry-run|would execute|not executed|no action was executed|requires confirmation)\b/.test(normalized)
+      ) {
+        return content;
+      }
+      return undefined;
+    }
+
+    const embeddedError = this.formatError(content.error);
+    if (content.isError === true) {
+      return embeddedError ?? 'MCP response content reported an error';
+    }
+
+    const status = typeof content.status === 'string' ? content.status.toLowerCase() : '';
+    const mode = typeof content.mode === 'string' ? content.mode.toLowerCase() : '';
+    const terminalState = status || mode;
+    if (['preview', 'dry-run', 'dry_run', 'not-executed', 'not_executed', 'requires-confirmation', 'requires_confirmation'].includes(terminalState)) {
+      return embeddedError ?? `MCP response reported non-executed status: ${terminalState}`;
+    }
+
+    if (
+      content.executed === false ||
+      content.didExecute === false ||
+      content.actionTaken === false ||
+      content.applied === false
+    ) {
+      return embeddedError ?? 'MCP response did not execute an action';
+    }
+
+    return undefined;
+  }
+
   /**
    * Parse raw MCP server JSON into a normalised MCPToolResult.
    */
-  private parseResponse(raw: MCPRawResponse): MCPToolResult {
-    const isError = raw.isError === true || raw.error !== undefined;
-
-    // Extract textual content -- MCP responses use { content: [{ type, text }] }
-    let content: string | Record<string, unknown> = '';
-    if (raw.content && Array.isArray(raw.content) && raw.content.length > 0) {
-      const first = raw.content[0];
-      if (first.type === 'text' && typeof first.text === 'string') {
-        // Attempt to parse the text as JSON for structured payloads.
-        try {
-          content = JSON.parse(first.text) as Record<string, unknown>;
-        } catch {
-          content = first.text;
-        }
-      } else {
-        // Non-text content item -- pass through the whole item as-is.
-        const { type: _type, ...rest } = first;
-        content = rest as Record<string, unknown>;
-      }
-    }
+  private parseResponse(rawResponse: unknown): MCPToolResult {
+    const raw = this.normalizeRawResponse(rawResponse);
+    const content = this.extractContent(raw);
+    const contentError = this.detectContentError(content);
+    const isError = raw.isError === true || raw.error !== undefined || contentError !== undefined;
 
     const errorMessage =
-      raw.error?.message ??
+      this.formatError(raw.error) ??
+      contentError ??
       (isError && typeof content === 'string' && content.length > 0
         ? content
         : undefined);
@@ -361,7 +456,7 @@ export class MCPClient {
         return result;
       }
 
-      const raw: MCPRawResponse = await response.json();
+      const raw: unknown = await response.json();
       const result = this.parseResponse(raw);
       if (isBrowserTool && actionId) this.emitActionEnd(actionId, result);
       return result;
@@ -465,6 +560,7 @@ export class MCPClient {
       let buffer = '';
       let aggregatedContent = '';
       let lastRaw: MCPRawResponse | null = null;
+      let errorRaw: MCPRawResponse | null = null;
       const MAX_ITERATIONS = 10_000;
       let iterations = 0;
 
@@ -495,11 +591,14 @@ export class MCPClient {
               if (payload.length === 0) continue;
 
               try {
-                const parsed: MCPRawResponse = JSON.parse(payload);
+                const parsed = this.normalizeRawResponse(JSON.parse(payload) as unknown);
                 lastRaw = parsed;
+                if (!this.parseResponse(parsed).success) {
+                  errorRaw = parsed;
+                }
 
                 // Extract incremental text for the chunk callback.
-                if (parsed.content && Array.isArray(parsed.content)) {
+                if (Array.isArray(parsed.content)) {
                   for (const item of parsed.content) {
                     if (item.type === 'text' && typeof item.text === 'string') {
                       aggregatedContent += item.text;
@@ -523,6 +622,11 @@ export class MCPClient {
       }
 
       // Build final result from the last received event (or the aggregate).
+      if (errorRaw) {
+        result = this.parseResponse(errorRaw);
+        return result;
+      }
+
       if (lastRaw) {
         result = this.parseResponse(lastRaw);
         return result;

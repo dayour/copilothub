@@ -26,6 +26,7 @@ import {
   ChevronDown,
   ChevronRight,
   Trash2,
+  Sparkles,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -48,6 +49,7 @@ function getActionIcon(type: BrowserActionType): LucideIcon {
     observe: Navigation,
     'follow-me': Play,
     hover: MousePointerClick,
+    polish: Sparkles,
   };
   return map[type] ?? Code;
 }

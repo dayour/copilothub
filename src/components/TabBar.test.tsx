@@ -120,6 +120,15 @@ describe('TabBar', () => {
     expect(closeSpy).toHaveBeenCalledWith('browser-tab');
   });
 
+  it('close button becomes visible on keyboard focus', () => {
+    render(<TabBar />);
+
+    const closeButton = screen.getByRole('button', { name: 'Close New Tab' });
+
+    expect(closeButton.className).toContain('focus-visible:opacity-100');
+    expect(closeButton.className).toContain('group-focus-within:opacity-100');
+  });
+
   it('pinned tabs show no close button', () => {
     render(<TabBar />);
     expect(screen.queryByRole('button', { name: 'Close Copilot Chat' })).not.toBeInTheDocument();
@@ -132,4 +141,3 @@ describe('TabBar', () => {
     expect(sidebarTabList).toHaveAttribute('aria-orientation', 'vertical');
   });
 });
-

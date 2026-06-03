@@ -31,7 +31,9 @@ function resetAppStore(overrides: Partial<ReturnType<typeof useAppStore.getState
     isAuthenticated: false,
     commandPaletteOpen: false,
     settingsPanelOpen: true,
+    settingsSelectedSection: 'general',
     copilotSidebarOpen: false,
+    assistantPaneMode: 'copilot',
     showActionOverlay: true,
     browserUseAutoScreenshot: true,
     browserUseMaxSteps: 50,
@@ -191,6 +193,15 @@ describe('SettingsPanel', () => {
     expect(screen.getByText('Microsoft Entra ID')).toBeInTheDocument();
     expect(screen.getByText('Microsoft Graph')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+  });
+
+  it('honors a settings deep link when opened', async () => {
+    resetAppStore({ settingsSelectedSection: 'integrations' });
+
+    await renderPanel();
+
+    expect(screen.getByText('Microsoft Entra ID')).toBeInTheDocument();
+    expect(screen.getByText('Microsoft Graph')).toBeInTheDocument();
   });
 
   it('shows environment status including VS Code local host details', async () => {

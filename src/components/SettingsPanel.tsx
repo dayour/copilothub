@@ -33,11 +33,10 @@ import {
   useAppStore,
   type ApprovalPolicy,
   type EditorPreference,
+  type SettingsSectionId,
   type Theme,
 } from '../store/appStore';
 import type { SessionSandboxMode, SessionShellType } from '../lib/sessionEnvironment';
-
-type SettingsSectionId = 'general' | 'integrations' | 'environment';
 
 interface SettingsSection {
   id: SettingsSectionId;
@@ -204,6 +203,7 @@ function ChoiceGrid<TValue extends string>({
 
 export function SettingsPanel() {
   const settingsPanelOpen = useAppStore((state) => state.settingsPanelOpen);
+  const activeSection = useAppStore((state) => state.settingsSelectedSection);
   const closeSettingsPanel = useAppStore((state) => state.closeSettingsPanel);
   const theme = useAppStore((state) => state.theme);
   const defaultEditor = useAppStore((state) => state.defaultEditor);
@@ -229,8 +229,8 @@ export function SettingsPanel() {
   const setBrowserUseMaxSteps = useAppStore((state) => state.setBrowserUseMaxSteps);
   const setSandboxMode = useAppStore((state) => state.setSandboxMode);
   const setApprovalPolicy = useAppStore((state) => state.setApprovalPolicy);
+  const setActiveSection = useAppStore((state) => state.setSettingsSection);
 
-  const [activeSection, setActiveSection] = useState<SettingsSectionId>('general');
   const [isAuthPending, setIsAuthPending] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSidecarPending, setIsSidecarPending] = useState(false);

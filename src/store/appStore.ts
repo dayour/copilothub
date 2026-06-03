@@ -27,6 +27,7 @@ export type EditorPreference = 'vscode' | 'browser';
 
 export type ApprovalPolicy = 'on-request' | 'on-failure' | 'untrusted-only';
 export type AssistantPaneMode = 'copilot' | 'review';
+export type SettingsSectionId = 'general' | 'integrations' | 'environment';
 
 const MIN_BROWSER_USE_STEPS = 1;
 const MAX_BROWSER_USE_STEPS = 200;
@@ -55,6 +56,7 @@ export interface AppStore {
   isAuthenticated: boolean;
   commandPaletteOpen: boolean;
   settingsPanelOpen: boolean;
+  settingsSelectedSection: SettingsSectionId;
   copilotSidebarOpen: boolean;
   assistantPaneMode: AssistantPaneMode;
   showActionOverlay: boolean;
@@ -76,9 +78,10 @@ export interface AppStore {
   setProjectSidebarCollapsed: (collapsed: boolean) => void;
   setCurrentProject: (path: string | null) => void;
   toggleCommandPalette: () => void;
-  openSettingsPanel: () => void;
+  openSettingsPanel: (section?: SettingsSectionId) => void;
   closeSettingsPanel: () => void;
-  toggleSettingsPanel: () => void;
+  toggleSettingsPanel: (section?: SettingsSectionId) => void;
+  setSettingsSection: (section: SettingsSectionId) => void;
   toggleCopilotSidebar: () => void;
   openCopilotPane: () => void;
   openReviewPane: () => void;
@@ -114,6 +117,7 @@ export const useAppStore = create<AppStore>()(
     isAuthenticated: false,
     commandPaletteOpen: false,
     settingsPanelOpen: false,
+    settingsSelectedSection: 'general' as SettingsSectionId,
     copilotSidebarOpen: false,
     assistantPaneMode: 'copilot' as AssistantPaneMode,
     showActionOverlay: true,
@@ -183,9 +187,10 @@ export const useAppStore = create<AppStore>()(
       });
     },
 
-    openSettingsPanel: () => {
+    openSettingsPanel: (section?: SettingsSectionId) => {
       set((state) => {
         state.settingsPanelOpen = true;
+        state.settingsSelectedSection = section ?? state.settingsSelectedSection;
         state.commandPaletteOpen = false;
       });
     },
@@ -196,13 +201,20 @@ export const useAppStore = create<AppStore>()(
       });
     },
 
-    toggleSettingsPanel: () => {
+    toggleSettingsPanel: (section?: SettingsSectionId) => {
       set((state) => {
         const nextOpen = !state.settingsPanelOpen;
         state.settingsPanelOpen = nextOpen;
         if (nextOpen) {
+          state.settingsSelectedSection = section ?? state.settingsSelectedSection;
           state.commandPaletteOpen = false;
         }
+      });
+    },
+
+    setSettingsSection: (section: SettingsSectionId) => {
+      set((state) => {
+        state.settingsSelectedSection = section;
       });
     },
 

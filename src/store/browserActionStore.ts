@@ -29,6 +29,7 @@ export type BrowserActionType =
   | 'press-key'
   | 'fill-form'
   | 'tabs'
+  | 'polish'
   | 'other';
 
 export interface BrowserAction {
@@ -108,6 +109,7 @@ export function toolNameToActionType(toolName: string): BrowserActionType {
     browser_press_key: 'press-key',
     browser_fill_form: 'fill-form',
     browser_tabs: 'tabs',
+    browser_pick_polish: 'polish',
   };
 
   return mapping[toolName] ?? 'other';

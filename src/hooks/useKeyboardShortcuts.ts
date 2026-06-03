@@ -78,7 +78,7 @@ export function useKeyboardShortcuts(
       if (key === 'F5') {
         e.preventDefault();
         if (activeTab?.type === 'browser') {
-          tabStore.updateTabUrl(activeTab.id, activeTab.url);
+          tabStore.requestTabReload(activeTab.id);
         }
         return;
       }

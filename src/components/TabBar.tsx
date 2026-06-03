@@ -182,8 +182,8 @@ const TabItem = React.memo(
             }}
             className={
               isVertical
-                ? 'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--color-text-muted)] opacity-0 transition-all group-hover:opacity-100 hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]'
-                : 'inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-[var(--color-text-muted)] opacity-0 transition-all group-hover:opacity-100 hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)]'
+                ? 'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--color-text-muted)] opacity-0 transition-all group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] focus-visible:bg-[var(--color-surface-hover)] focus-visible:text-[var(--color-text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)]'
+                : 'inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-[var(--color-text-muted)] opacity-0 transition-all group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] focus-visible:bg-[var(--color-surface-hover)] focus-visible:text-[var(--color-text-primary)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-border-focus)]'
             }
             aria-label={`Close ${tab.title}`}
             title={isVertical ? 'Close tab' : undefined}
@@ -243,7 +243,7 @@ export function TabBar({ vertical }: { vertical?: boolean }) {
         <div className="flex h-[36px] items-center justify-end border-b border-[var(--color-border-default)] px-2">
           <button
             type="button"
-            onClick={openSettingsPanel}
+            onClick={() => openSettingsPanel()}
             className="mr-1 inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-tab-hover)] hover:text-[var(--color-text-primary)]"
             aria-label="Open settings"
             title="Settings"
@@ -318,7 +318,7 @@ export function TabBar({ vertical }: { vertical?: boolean }) {
 
         <button
           type="button"
-          onClick={openSettingsPanel}
+          onClick={() => openSettingsPanel()}
           className="ml-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-tab-hover)] hover:text-[var(--color-text-primary)]"
           aria-label="Open settings"
           title="Settings"
@@ -356,4 +356,3 @@ export function TabBar({ vertical }: { vertical?: boolean }) {
     </>
   );
 }
-

@@ -538,7 +538,7 @@ function DayDetailPanel({
         )}
       </div>
 
-      {/* Add event button (decorative -- no handler) */}
+      {/* Add event affordance is intentionally non-operational in this sample. */}
       <div
         style={{
           padding: '12px 16px',
@@ -547,6 +547,8 @@ function DayDetailPanel({
       >
         <button
           type="button"
+          disabled
+          aria-label="Add event unavailable in demo mode"
           style={{
             width: '100%',
             display: 'inline-flex',
@@ -557,24 +559,17 @@ function DayDetailPanel({
             borderRadius: 8,
             border: '1px dashed var(--color-border-default)',
             background: 'transparent',
-            color: 'var(--color-accent-primary)',
+            color: 'var(--color-text-muted)',
             fontFamily: 'var(--font-family-sans)',
             fontSize: 12,
             fontWeight: 600,
-            cursor: 'pointer',
+            cursor: 'not-allowed',
+            opacity: 0.72,
             transition: 'background 0.15s, border-color 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'var(--color-surface-hover)';
-            e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'transparent';
-            e.currentTarget.style.borderColor = 'var(--color-border-default)';
           }}
         >
           <Plus size={14} />
-          Add Event
+          Add Event (demo only)
         </button>
       </div>
     </div>

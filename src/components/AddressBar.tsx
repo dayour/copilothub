@@ -17,6 +17,7 @@ import { getSafeExternalHref, normalizeUrlForNavigation } from '../lib/urlSafety
 export function AddressBar() {
   const activeTab = useTabStore((state) => state.activeTab());
   const updateTabUrl = useTabStore((state) => state.updateTabUrl);
+  const requestTabReload = useTabStore((state) => state.requestTabReload);
   const navigateBack = useTabStore((state) => state.navigateBack);
   const navigateForward = useTabStore((state) => state.navigateForward);
   const setTabLoading = useTabStore((state) => state.setTabLoading);
@@ -73,7 +74,7 @@ export function AddressBar() {
     }
 
     setTabLoading(activeTab.id, true);
-    updateTabUrl(activeTab.id, activeTab.url);
+    requestTabReload(activeTab.id);
   };
 
   const isSecure = activeTab.url.startsWith('https://');
@@ -190,4 +191,3 @@ export function AddressBar() {
     </div>
   );
 }
-
