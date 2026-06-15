@@ -1,6 +1,6 @@
-# CopilotHub 3-Lane Hackathon Protocol
+# CopilotHub Tri State Orchestration Protocol (TSOP)
 
-**Version:** 1.0
+**Version:** 1.1
 **Status:** Active
 **Authoritative Design Reference:** <https://fluent2.microsoft.design/>
 
@@ -23,11 +23,11 @@
 
 ## Overview
 
-CopilotHub is a Tauri 2.x + React 19 + Rust enterprise desktop application providing
+CopilotHub is a Tauri 2.x + React 19 + Rust agent workbench enabling
 a multi-tab browser, AI chat, MCP sidecar bridge, integrated terminal, VS Code tab,
 runbook system, Zustand state management, Tailwind CSS 4 styling, and Entra SSO facade.
 
-This protocol defines a competitive, parallel development exercise in which three
+This protocol delivers an adaptive parallel development workspace in which three
 independent lanes implement an identical feature set against CopilotHub. Each lane
 operates under different AI model constraints. After implementation, cross-channel
 review and scoring determine how deliverables merge into the main branch.
