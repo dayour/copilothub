@@ -329,6 +329,7 @@
     "capability": "graph",
     "sessionScope": "global",
     "availability": "available",
+    "requiresEntraAuth": true,
     "tags": ["graph", "profile"],
     "inputSchema": {
       "type": "object",
@@ -349,6 +350,7 @@
     "capability": "graph",
     "sessionScope": "global",
     "availability": "available",
+    "requiresEntraAuth": true,
     "tags": ["graph", "calendar"],
     "inputSchema": {
       "type": "object",
@@ -369,6 +371,7 @@
     "capability": "graph",
     "sessionScope": "global",
     "availability": "available",
+    "requiresEntraAuth": true,
     "tags": ["graph", "files"],
     "inputSchema": {
       "type": "object",
@@ -389,6 +392,7 @@
     "capability": "graph",
     "sessionScope": "global",
     "availability": "available",
+    "requiresEntraAuth": true,
     "tags": ["graph", "mail"],
     "inputSchema": {
       "type": "object",
@@ -409,6 +413,7 @@
     "capability": "graph",
     "sessionScope": "global",
     "availability": "available",
+    "requiresEntraAuth": true,
     "tags": ["graph", "teams"],
     "inputSchema": {
       "type": "object",

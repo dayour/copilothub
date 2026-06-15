@@ -56,6 +56,8 @@ export interface ToolDefinition {
   capability: ToolCapability;
   sessionScope: ToolSessionScope;
   availability: ToolAvailability;
+  /** When true the tool requires an active Entra SSO session at runtime (defect D7). */
+  requiresEntraAuth?: boolean;
   aliases?: readonly string[];
   tags?: readonly string[];
   inputSchema?: ToolInputSchema;
@@ -67,6 +69,7 @@ export interface ToolListFilters {
   sessionScope?: ToolSessionScope | readonly ToolSessionScope[];
   availability?: ToolAvailability | readonly ToolAvailability[];
   streamable?: boolean;
+  requiresEntraAuth?: boolean;
 }
 
 interface RawToolInputPropertySchema {
@@ -101,6 +104,7 @@ interface RawToolDefinition {
   capability: ToolCapability;
   sessionScope: ToolSessionScope;
   availability: ToolAvailability;
+  requiresEntraAuth?: boolean;
   aliases?: string[];
   tags?: string[];
   inputSchema?: RawToolInputSchema;
@@ -171,6 +175,7 @@ export class ToolRegistry {
       .filter((tool) => matchesFilter(tool.sessionScope, filters.sessionScope))
       .filter((tool) => matchesFilter(tool.availability, filters.availability))
       .filter((tool) => filters.streamable === undefined || tool.execution.streamable === filters.streamable)
+      .filter((tool) => filters.requiresEntraAuth === undefined || (tool.requiresEntraAuth ?? false) === filters.requiresEntraAuth)
       .sort((left, right) => left.id.localeCompare(right.id));
   }
 
@@ -226,6 +231,7 @@ function normalizeToolDefinition(definition: RawToolDefinition): ToolDefinition 
     capability: definition.capability,
     sessionScope: definition.sessionScope,
     availability: definition.availability,
+    requiresEntraAuth: definition.requiresEntraAuth,
     aliases: definition.aliases,
     tags: definition.tags,
     inputSchema: definition.inputSchema ? cloneInputSchema(definition.inputSchema) : undefined,
