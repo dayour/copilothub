@@ -214,4 +214,68 @@ describe('actionMode', () => {
     expect(typeof result).toBe('string');
     expect(result).toBe('Action completed successfully.');
   });
+
+  it('@graph dispatches to graph_query with query argument', () => {
+    const command = parseActionCommand('@graph: list my recent emails');
+    expect(command).toEqual({
+      tool: 'graph_query',
+      args: { query: 'list my recent emails' },
+      raw: '@graph: list my recent emails',
+    });
+  });
+
+  it('@graph with space separator dispatches to graph_query', () => {
+    const command = parseActionCommand('@graph get my calendar events');
+    expect(command).toEqual({
+      tool: 'graph_query',
+      args: { query: 'get my calendar events' },
+      raw: '@graph get my calendar events',
+    });
+  });
+
+  it('@power dispatches to pac_run with command argument', () => {
+    const command = parseActionCommand('@power org list');
+    expect(command).toEqual({
+      tool: 'pac_run',
+      args: { command: 'org list' },
+      raw: '@power org list',
+    });
+  });
+
+  it('@dataverse dispatches to dataverse_query with query argument', () => {
+    const command = parseActionCommand('@dataverse list-entities --environment dev');
+    expect(command).toEqual({
+      tool: 'dataverse_query',
+      args: { query: 'list-entities --environment dev' },
+      raw: '@dataverse list-entities --environment dev',
+    });
+  });
+
+  it('@workiq dispatches to workiq_ask with question argument', () => {
+    const command = parseActionCommand('@workiq: what is the status of my open tasks?');
+    expect(command).toEqual({
+      tool: 'workiq_ask',
+      args: { question: 'what is the status of my open tasks?' },
+      raw: '@workiq: what is the status of my open tasks?',
+    });
+  });
+
+  it('@agent365 is an alias for @workiq and dispatches to workiq_ask', () => {
+    const command = parseActionCommand('@agent365 summarize my emails');
+    expect(command).toEqual({
+      tool: 'workiq_ask',
+      args: { question: 'summarize my emails' },
+      raw: '@agent365 summarize my emails',
+    });
+  });
+
+  it('returns null for @graph with empty command', () => {
+    const command = parseActionCommand('@graph:   ');
+    expect(command).toBeNull();
+  });
+
+  it('returns null for @power with empty command', () => {
+    const command = parseActionCommand('@power   ');
+    expect(command).toBeNull();
+  });
 });

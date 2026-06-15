@@ -198,4 +198,42 @@ describe('ToolRegistry', () => {
     ]);
     expect(browserNavigate?.execution.defaultTargeting).toBe('selectedSession');
   });
+
+  it('all Graph tools are flagged requiresEntraAuth (defect D7 tracking)', () => {
+    const registry = createCopilotHubToolRegistry();
+
+    const graphTools = registry.listTools({ capability: 'graph' });
+
+    expect(graphTools.length).toBeGreaterThan(0);
+    for (const tool of graphTools) {
+      expect(tool.requiresEntraAuth).toBe(true);
+    }
+  });
+
+  it('listTools filters by requiresEntraAuth', () => {
+    const registry = createCopilotHubToolRegistry();
+
+    const entraTools = registry.listTools({ requiresEntraAuth: true });
+    const nonEntraTools = registry.listTools({ requiresEntraAuth: false });
+
+    expect(entraTools.every((t) => t.requiresEntraAuth === true)).toBe(true);
+    expect(nonEntraTools.every((t) => !t.requiresEntraAuth)).toBe(true);
+    expect(entraTools.map((t) => t.id)).toEqual(expect.arrayContaining([
+      'graph.calendar.today',
+      'graph.files.recent',
+      'graph.mail.inbox',
+      'graph.teams.messages',
+      'graph.user.profile',
+    ]));
+  });
+
+  it('non-Graph tools do not require Entra auth', () => {
+    const registry = createCopilotHubToolRegistry();
+
+    const nonGraphTools = registry.listTools({
+      capability: ['browser', 'terminal', 'vscode', 'runbook'],
+    });
+
+    expect(nonGraphTools.every((t) => !t.requiresEntraAuth)).toBe(true);
+  });
 });
